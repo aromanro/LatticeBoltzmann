@@ -35,7 +35,7 @@ END_MESSAGE_MAP()
 // CLatticeBoltzmannView construction/destruction
 
 CLatticeBoltzmannView::CLatticeBoltzmannView()
-	: timer(NULL), Width(0), Height(0)
+	: timer(NULL)
 {
 	// TODO: add construction code here
 
@@ -193,23 +193,6 @@ void CLatticeBoltzmannView::OnDestroy()
 	CView::OnDestroy();	
 }
 
-
-void CLatticeBoltzmannView::OnSize(UINT nType, int cx, int cy)
-{
-	CView::OnSize(nType, cx, cy);
-
-	Height = cy;
-	Width = cx;
-}
-
-
-void CLatticeBoltzmannView::Init()
-{
-	CRect rect;
-	GetClientRect(rect);
-	Height = rect.Height();
-	Width = rect.Width();
-}
 
 
 void CLatticeBoltzmannView::OnTimer(UINT_PTR nIDEvent)
