@@ -29,7 +29,7 @@ CDisplayPropPage::CDisplayPropPage()
 	minVorticity = theApp.options.minVorticity;
 	maxVorticity = theApp.options.maxVorticity;
 
-	chartColors = (int)theApp.options.chartColors;
+	chartColors = static_cast<int>(theApp.options.chartColors);
 	resultsType = theApp.options.resultsType;
 
 	zoom = (theApp.options.zoom == 1 ? 0 : 1);
@@ -136,7 +136,7 @@ void CDisplayPropPage::ApplyValues()
 
 	theApp.options.Save();
 
-	CLatticeBoltzmannDoc* doc = ((CLatticeBoltzmannDoc*)((CMainFrame*)theApp.m_pMainWnd)->GetActiveDocument());
+	CLatticeBoltzmannDoc* doc = dynamic_cast<CLatticeBoltzmannDoc*>(dynamic_cast<CMainFrame*>(theApp.m_pMainWnd)->GetActiveDocument());
 	if (doc)
 	{
 		std::lock_guard<std::mutex> lock(doc->lattice.resMutex);

@@ -61,7 +61,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	BOOL bNameValid;
 
 	if (!m_wndMenuBar.Create(this))
 	{
@@ -82,7 +81,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 
 	CString strToolBarName;
-	bNameValid = strToolBarName.LoadString(IDS_TOOLBAR_STANDARD);
+	BOOL bNameValid = strToolBarName.LoadString(IDS_TOOLBAR_STANDARD);
 	ASSERT(bNameValid);
 	m_wndToolBar.SetWindowText(strToolBarName);
 
@@ -329,7 +328,7 @@ void CMainFrame::OnFileOpen()
 
 		if (pWndMain)
 		{
-			CLatticeBoltzmannDoc* pDoc = (CLatticeBoltzmannDoc*)((CFrameWnd*)pWndMain)->GetActiveDocument();
+			CLatticeBoltzmannDoc* pDoc = dynamic_cast<CLatticeBoltzmannDoc*>(dynamic_cast<CFrameWnd*>(pWndMain)->GetActiveDocument());
 
 			if (pDoc)
 			{

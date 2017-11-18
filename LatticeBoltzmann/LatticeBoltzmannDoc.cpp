@@ -139,13 +139,13 @@ void CLatticeBoltzmannDoc::Dump(CDumpContext& dc) const
 // CLatticeBoltzmannDoc commands
 
 
-void CLatticeBoltzmannDoc::SetImageAndStartComputing(CImage& image)
+void CLatticeBoltzmannDoc::SetImageAndStartComputing(const CImage& image)
 {
 	StopSimulation();
 
 	lattice.latticeObstacles = Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>(image.GetHeight(), image.GetWidth());
 
-	COLORREF freeColor = image.GetPixel(0, 0);
+	const COLORREF freeColor = image.GetPixel(0, 0);
 
 	for (int i = 0; i < image.GetHeight(); ++i)
 		for (int j = 0; j < image.GetWidth(); ++j)
@@ -160,8 +160,8 @@ void CLatticeBoltzmannDoc::SetImageAndStartComputing(CImage& image)
 	lattice.numThreads = theApp.options.numThreads;
 	lattice.refreshSteps = theApp.options.refreshSteps;
 
-	lattice.resultsType = (LatticeBoltzmann::Lattice::ResultsType)theApp.options.resultsType;
-	lattice.boundaryConditions = (LatticeBoltzmann::Lattice::BoundaryConditions)theApp.options.boundaryConditions;
+	lattice.resultsType = static_cast<LatticeBoltzmann::Lattice::ResultsType>(theApp.options.resultsType);
+	lattice.boundaryConditions = static_cast<LatticeBoltzmann::Lattice::BoundaryConditions>(theApp.options.boundaryConditions);
 	lattice.accelX = theApp.options.accelX;
 
 	lattice.useAccelX = theApp.options.useAccelX;
@@ -194,7 +194,7 @@ CLatticeBoltzmannView* CLatticeBoltzmannDoc::GetMainView()
 	{
 		CView* pView = GetNextView(pos);
 		if (pView->IsKindOf(RUNTIME_CLASS(CLatticeBoltzmannView)))
-			return (CLatticeBoltzmannView*)pView;
+			return dynamic_cast<CLatticeBoltzmannView*>(pView);
 	}
 
 	return NULL;

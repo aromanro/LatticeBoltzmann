@@ -37,7 +37,7 @@ namespace LatticeBoltzmann {
 			for (int j = 0; j < lattice.cols(); ++j)
 				if (latticeObstacles(i, j) ||
 					(Periodic != boundaryConditions && (i == 0 || i == lattice.rows() - 1)))
-					for (int k = 0; k < 9; ++k) lattice(i, j).density[k] = 0;
+					lattice(i, j).density = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 				else lattice(i, j).Init();
 	}
 
@@ -63,7 +63,7 @@ namespace LatticeBoltzmann {
 	{
 		//wait for the worker threads to finish some work
 		std::unique_lock<std::mutex> lk(mp);
-		cvp.wait(lk, [this] { return processed == numThreads; });
+		cvp.wait(lk, [this] { return processed == static_cast<int>(numThreads); });
 		processed = 0;
 	}
 
@@ -80,13 +80,13 @@ namespace LatticeBoltzmann {
 		CellLattice& latticeWork = *latticeW;
 		// stream (including bounce back) and collision combined
 
-		int LatticeRows = (int)lattice.rows();
+		int LatticeRows = static_cast<int>(lattice.rows());
 		int LatticeRowsMinusOne = LatticeRows - 1;
-		int LatticeCols = (int)lattice.cols();
+		int LatticeCols = static_cast<int>(lattice.cols());
 		int LatticeColsMinusOne = LatticeCols - 1;
 
-		double accelXtau = accelX * tau;
-		double accelYtau = accelY * tau;
+		const double accelXtau = accelX * tau;
+		const double accelYtau = accelY * tau;
 
 		for (;;)
 		{
@@ -99,8 +99,8 @@ namespace LatticeBoltzmann {
 
 			for (int y = 0; y < LatticeRows; ++y)
 			{
-				int LatticeRowsMinuOneMinusRow = LatticeRowsMinusOne - y;
-				bool ShouldCollide = (Periodic == boundaryConditions || (0 != y && y != LatticeRowsMinusOne));
+				const int LatticeRowsMinuOneMinusRow = LatticeRowsMinusOne - y;
+				const bool ShouldCollide = (Periodic == boundaryConditions || (0 != y && y != LatticeRowsMinusOne));
 
 				for (int x = startCol; x < endCol; ++x)
 				{
@@ -121,7 +121,7 @@ namespace LatticeBoltzmann {
 
 					for (int dir = 0; dir < 9; ++dir)
 					{
-						Cell::Direction direction = Cell::Direction(dir);
+						Cell::Direction direction = static_cast<Cell::Direction>(dir);
 
 						auto pos = Cell::GetNextPosition(direction, x, LatticeRowsMinuOneMinusRow);
 						pos.second = LatticeRowsMinusOne - pos.second;
@@ -187,11 +187,11 @@ namespace LatticeBoltzmann {
 		wakeup.resize(numThreads);
 		for (unsigned int i = 0; i < numThreads; ++i) wakeup[i] = false;
 
-		int workStride = (int)lattice.cols() / numThreads;
+		const int workStride = static_cast<int>(lattice.cols() / numThreads);
 		for (int t = 0, strideStart = 0; t < (int)numThreads; ++t)
 		{
-			int endStride = strideStart + workStride;
-			theThreads[t] = std::thread(&Lattice::CollideAndStream, this, t, &latticeWork, strideStart, t == numThreads - 1 ? (int)lattice.cols() : endStride);
+			const int endStride = strideStart + workStride;
+			theThreads[t] = std::thread(&Lattice::CollideAndStream, this, t, &latticeWork, strideStart, t == static_cast<int>(numThreads - 1) ? static_cast<int>(lattice.cols()) : endStride);
 			strideStart = endStride;
 		}
 

@@ -71,10 +71,10 @@ void CLatticeBoltzmannView::OnDraw(CDC* pDC)
 	{
 		std::lock_guard<std::mutex> lock(pDoc->lattice.resMutex);
 
-		memoryBitmap.SetMatrix(pDoc->lattice.results, (int)pDoc->lattice.resultsType, pDoc->lattice.latticeObstacles);
+		memoryBitmap.SetMatrix(pDoc->lattice.results, static_cast<int>(pDoc->lattice.resultsType), pDoc->lattice.latticeObstacles);
 
-		width = (int)pDoc->lattice.results.cols();
-		height = (int)pDoc->lattice.results.rows();
+		width = static_cast<int>(pDoc->lattice.results.cols());
+		height = static_cast<int>(pDoc->lattice.results.rows());
 	}
 
 	width *= theApp.options.zoom;
@@ -144,7 +144,7 @@ void CLatticeBoltzmannView::OnRButtonUp(UINT /* nFlags */, CPoint point)
 	OnContextMenu(this, point);
 }
 
-void CLatticeBoltzmannView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
+void CLatticeBoltzmannView::OnContextMenu(CWnd* /* pWnd */, CPoint /*point*/)
 {
 #ifndef SHARED_HANDLERS
 #endif
@@ -167,7 +167,7 @@ void CLatticeBoltzmannView::Dump(CDumpContext& dc) const
 CLatticeBoltzmannDoc* CLatticeBoltzmannView::GetDocument() const // non-debug version is inline
 {
 	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CLatticeBoltzmannDoc)));
-	return (CLatticeBoltzmannDoc*)m_pDocument;
+	return dynamic_cast<CLatticeBoltzmannDoc*>(m_pDocument);
 }
 #endif //_DEBUG
 

@@ -60,7 +60,7 @@ void Options::Load()
 	minVorticity = GetDouble(L"minVorticity", -0.05);
 	maxVorticity = GetDouble(L"maxVorticity", 0.05);
 	
-	chartColors = (ChartColors)theApp.GetProfileInt(L"options", L"ChartColors", 1);
+	chartColors = static_cast<ChartColors>(theApp.GetProfileInt(L"options", L"ChartColors", 1));
 	zoom = theApp.GetProfileInt(L"options", L"zoom", 2);
 	resultsType = theApp.GetProfileInt(L"options", L"resultsType", 1);
 
@@ -92,7 +92,7 @@ void Options::Save()
 	theApp.WriteProfileBinary(L"options", L"minVorticity", (LPBYTE)&minVorticity, sizeof(double));
 	theApp.WriteProfileBinary(L"options", L"maxVorticity", (LPBYTE)&maxVorticity, sizeof(double));
 
-	theApp.WriteProfileInt(L"options", L"ChartColors", (int)chartColors);
+	theApp.WriteProfileInt(L"options", L"ChartColors", static_cast<int>(chartColors));
 	theApp.WriteProfileInt(L"options", L"zoom", zoom);
 	theApp.WriteProfileInt(L"options", L"resultsType", resultsType);
 

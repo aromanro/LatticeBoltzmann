@@ -54,7 +54,7 @@ protected:
 	void SetSearchContent(const CString& value);
 #endif // SHARED_HANDLERS
 public:
-	void SetImageAndStartComputing(CImage& image);
+	void SetImageAndStartComputing(const CImage& image);
 	void StopSimulation();
 	CLatticeBoltzmannView* GetMainView();
 	virtual void OnCloseDocument();

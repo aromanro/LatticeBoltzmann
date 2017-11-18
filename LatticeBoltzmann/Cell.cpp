@@ -17,9 +17,8 @@ namespace LatticeBoltzmann {
 	std::array<double, 9> Cell::coeff = std::array<double, 9>{ { c0, c1, c2, c1, c2, c1, c2, c1, c2 } };
 
 	Cell::Cell()
+		: density{ {0, 0, 0, 0, 0, 0, 0, 0, 0} }
 	{
-		for (int i = 0; i < 9; ++i)
-			density[i] = 0;
 	}
 
 
@@ -31,8 +30,7 @@ namespace LatticeBoltzmann {
 
 	void Cell::Init()
 	{
-		for (int i = 0; i < 9; ++i)
-			density[i] = coeff[i];
+		density = coeff;
 	}
 }
 

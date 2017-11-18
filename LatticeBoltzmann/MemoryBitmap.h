@@ -25,27 +25,27 @@ protected:
 
 	inline COLORREF ConvertToColor(double value, int colorType, double minVal, double maxVal)
 	{
-		COLORREF color;
+		COLORREF color = RGB(0, 0, 0);
 
 		if (value < minVal) value = minVal;
 		else if (value > maxVal) value = maxVal;
 
-		double interval = maxVal - minVal;
+		const double interval = maxVal - minVal;
 		
 		if (0 == colorType) // two colors
 		{
-			double unit = interval / 255.;
+			const double unit = interval / 255.;
 
-			int B = (int)((value - minVal) / unit);
+			int B = static_cast<int>((value - minVal) / unit);
 			int R = 255 - B;
 
 			color = RGB(R, 0, B);
 		}
 		else
 		{
-			double unit = interval / (255. * 2.);
+			const double unit = interval / (255. * 2.);
 
-			int v = (int)((value - minVal) / unit);
+			int v = static_cast<int>((value - minVal) / unit);
 
 			if (v > 0xff)
 			{
