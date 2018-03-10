@@ -46,7 +46,7 @@ namespace LatticeBoltzmann {
 		// signal the worker thread to wake up if it's waiting
 		{
 			std::lock_guard<std::mutex> lk(mw);
-			for (int i = 0; i < wakeup.size(); ++i) wakeup[i] = true;
+			for (unsigned int i = 0; i < wakeup.size(); ++i) wakeup[i] = true;
 		}
 		cvw.notify_all();
 	}
