@@ -80,7 +80,7 @@ void MemoryBitmap::SetSize(int width, int height)
 	}
 }
 
-void MemoryBitmap::SetMatrix(const Eigen::MatrixXd& results, int resultsType, const Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>& latticeObstacles)
+void MemoryBitmap::SetMatrix(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, LatticeBoltzmann::Lattice::DataOrder>& results, int resultsType, const Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic, LatticeBoltzmann::Lattice::DataOrder>& latticeObstacles)
 {
 	if (results.cols() == 0 || results.rows() == 0) return;
 
@@ -106,24 +106,18 @@ void MemoryBitmap::SetMatrix(const Eigen::MatrixXd& results, int resultsType, co
 		maxVal = theApp.options.maxDensity;
 	}
 
-	for (int i = 0; i < results.rows(); ++i)
-	{
-		int line = (m_height - i - 1) * stride;
-		
-		for (int j = 0; j < results.cols(); ++j)
+	for (int j = 0; j < results.cols(); ++j)
+		for (int i = 0; i < results.rows(); ++i)
 		{
-			int pos = line + 3 * j;
+			const int line = (m_height - i - 1) * stride;
+			const int pos = line + 3 * j;
 
-			COLORREF color;
-			
-			if (latticeObstacles(i, j)) color = theApp.options.obstaclesColor;
-			else color = ConvertToColor(results(i, j), theApp.options.chartColors, minVal, maxVal);
+			const COLORREF color = latticeObstacles(i, j) ? theApp.options.obstaclesColor : ConvertToColor(results(i, j), theApp.options.chartColors, minVal, maxVal);
 
 			data[pos] = GetBValue(color);
 			data[pos + 1] = GetGValue(color);
 			data[pos + 2] = GetRValue(color);
 		}
-	}
 }
 
 

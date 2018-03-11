@@ -8,6 +8,8 @@
 
 #include "Cell.h"
 
+
+
 namespace LatticeBoltzmann {
 
 
@@ -17,7 +19,7 @@ namespace LatticeBoltzmann {
 		Lattice();
 		~Lattice();
 
-		
+
 		enum BoundaryConditions
 		{
 			Periodic = 0,
@@ -41,9 +43,9 @@ namespace LatticeBoltzmann {
 		unsigned int refreshSteps;
 		unsigned int numThreads;
 
-		
+		static const Eigen::StorageOptions DataOrder = Eigen::ColMajor;
 
-		typedef Eigen::Matrix<LatticeBoltzmann::Cell, Eigen::Dynamic, Eigen::Dynamic> CellLattice;
+		typedef Eigen::Matrix<LatticeBoltzmann::Cell, Eigen::Dynamic, Eigen::Dynamic, DataOrder> CellLattice;
 
 		double tau;
 		double accelX; // only applied to the left side to 'push' the fluid through the 'pipe'
@@ -64,11 +66,12 @@ namespace LatticeBoltzmann {
 		double outletSpeed;
 
 
-		CellLattice lattice;		
+		CellLattice lattice;
 
-		Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic> latticeObstacles;
 
-		Eigen::MatrixXd results;
+		Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic, DataOrder> latticeObstacles;
+
+		Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, DataOrder> results;
 		std::mutex resMutex; // to protect the above and results type if changed during run
 
 
@@ -83,12 +86,79 @@ namespace LatticeBoltzmann {
 
 		int processed;
 		std::vector<bool> wakeup;
-		
+
 		void WakeUp();
 		void WaitForWork(int tid);
-		
+
 		void WaitForData();
 		void SignalMoreData();
+
+		inline void CollideAndStreamCell(int x, int y, bool ShouldCollide, bool useAccelX, int LatticeRowsMinusOne, int LatticeRows, int LatticeColsMinusOne, int LatticeCols, double accelXtau, double accelYtau, double tau, CellLattice& latticeWork)
+		{
+			// collision
+			if (ShouldCollide && !latticeObstacles(y, x) && (useAccelX || (x > 0 && x < LatticeColsMinusOne)))
+				lattice(y, x).Collision(x == 0 && useAccelX ? accelXtau : 0, accelYtau, tau);
+
+			// stream
+
+			// as a note, this is highly inefficient
+			// for example
+			// checking nine times for each cell for a boundary condition that is fixed before running the simulation
+			// is overkill
+			// this could be solved by moving the ifs outside the for loops
+			// it could be for example solved with templates with the proper class instantiation depending on the settings
+			// I did not want to complicate the code so much so for now I'll have it this way even if it's not efficient
+			// hopefully the compiler is able to do some optimizations :)
+
+			for (unsigned char dir = 0; dir < 9; ++dir)
+			{
+				Cell::Direction direction = static_cast<Cell::Direction>(dir);
+
+				auto pos = Cell::GetNextPosition(direction, x, LatticeRowsMinusOne - y);
+				pos.second = LatticeRowsMinusOne - pos.second;
+
+				// ***************************************************************************************************************
+
+				// left & right 
+
+
+				if (useAccelX) //periodic boundary with usage of an accelerating force
+				{
+					if (pos.first < 0) pos.first = LatticeColsMinusOne;
+					else if (pos.first >= LatticeCols) pos.first = 0;
+				}
+				else
+				{
+					// bounce them back
+					if ((pos.first == 0 || pos.first == LatticeColsMinusOne) && !(pos.second == 0 || pos.second == LatticeRowsMinusOne))
+						direction = Cell::Reverse(direction);
+				}
+
+				// ***************************************************************************************************************
+
+				// top & bottom, depends on boundaryConditions
+				if (Periodic == boundaryConditions)
+				{
+					if (pos.second < 0) pos.second = LatticeRowsMinusOne;
+					else if (pos.second >= LatticeRows) pos.second = 0;
+				}
+				else if (pos.second == 0 || pos.second == LatticeRowsMinusOne)
+				{
+					if (BounceBack == boundaryConditions) direction = Cell::Reverse(direction);
+					else direction = Cell::ReflectVert(direction);
+				}
+
+				// ***************************************************************************************************************
+
+				// bounce back for regular obstacles
+				if (latticeObstacles(pos.second, pos.first)) direction = Cell::Reverse(direction);
+
+				// x, y = old position, pos = new position, dir - original direction, direction - new direction
+				if (pos.first >= 0 && pos.first < LatticeCols && pos.second >= 0 && pos.second < LatticeRows)
+					latticeWork(pos.second, pos.first).density[direction] = lattice(y, x).density[dir];
+
+			}
+		}
 
 		void CollideAndStream(int tid, CellLattice* latticeW, int startCol, int endCol);
 

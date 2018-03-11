@@ -28,13 +28,13 @@ namespace LatticeBoltzmann {
 	{
 		{
 			std::lock_guard<std::mutex> lock(resMutex);
-			results = Eigen::MatrixXd::Zero(latticeObstacles.rows(), latticeObstacles.cols());
+			results = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, DataOrder>::Zero(latticeObstacles.rows(), latticeObstacles.cols());
 		}
 
 		lattice = CellLattice(latticeObstacles.rows(), latticeObstacles.cols());
 
-		for (int i = 0; i < lattice.rows(); ++i)
-			for (int j = 0; j < lattice.cols(); ++j)
+		for (int j = 0; j < lattice.cols(); ++j)
+			for (int i = 0; i < lattice.rows(); ++i)
 				if (latticeObstacles(i, j) ||
 					(Periodic != boundaryConditions && (i == 0 || i == lattice.rows() - 1)))
 					lattice(i, j).density = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -75,18 +75,21 @@ namespace LatticeBoltzmann {
 	}
 
 
+
 	void Lattice::CollideAndStream(int tid, CellLattice* latticeW, int startCol, int endCol)
 	{
 		CellLattice& latticeWork = *latticeW;
 		// stream (including bounce back) and collision combined
 
-		int LatticeRows = static_cast<int>(lattice.rows());
-		int LatticeRowsMinusOne = LatticeRows - 1;
-		int LatticeCols = static_cast<int>(lattice.cols());
-		int LatticeColsMinusOne = LatticeCols - 1;
+		const int LatticeRows = static_cast<int>(lattice.rows());
+		const int LatticeRowsMinusOne = LatticeRows - 1;
+		const int LatticeCols = static_cast<int>(lattice.cols());
+		const int LatticeColsMinusOne = LatticeCols - 1;
 
 		const double accelXtau = accelX * tau;
 		const double accelYtau = accelY * tau;
+
+		const bool ShouldCollideAtUpDownBoundary = (Periodic == boundaryConditions);
 
 		for (;;)
 		{
@@ -97,84 +100,22 @@ namespace LatticeBoltzmann {
 				break;
 			}
 
-			for (int y = 0; y < LatticeRows; ++y)
+			for (int x = startCol; x < endCol; ++x)
 			{
-				const int LatticeRowsMinuOneMinusRow = LatticeRowsMinusOne - y;
-				const bool ShouldCollide = (Periodic == boundaryConditions || (0 != y && y != LatticeRowsMinusOne));
+				CollideAndStreamCell(x, 0, ShouldCollideAtUpDownBoundary, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, accelYtau, tau, latticeWork);
 
-				for (int x = startCol; x < endCol; ++x)
-				{
-					// collision
-					if (!latticeObstacles(y, x) && ShouldCollide && (useAccelX || (x > 0 && x < LatticeColsMinusOne)))
-						lattice(y, x).Collision(x == 0 && useAccelX ? accelXtau : 0, accelYtau, tau);
+				for (int y = 1; y < LatticeRowsMinusOne; ++y)
+					CollideAndStreamCell(x, y, true, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, accelYtau, tau, latticeWork);
 
-					// stream
-
-					// as a note, this is highly inefficient
-					// for example
-					// checking nine times for each cell for a boundary condition that is fixed before running the simulation
-					// is overkill
-					// this could be solved by moving the ifs outside the for loops
-					// it could be for example solved with templates with the proper class instantiation depending on the settings
-					// I did not want to complicate the code so much so for now I'll have it this way even if it's not efficient
-					// hopefully the compiler is able to do some optimizations :)
-
-					for (int dir = 0; dir < 9; ++dir)
-					{
-						Cell::Direction direction = static_cast<Cell::Direction>(dir);
-
-						auto pos = Cell::GetNextPosition(direction, x, LatticeRowsMinuOneMinusRow);
-						pos.second = LatticeRowsMinusOne - pos.second;
-
-						// ***************************************************************************************************************
-
-						// left & right 
-
-
-						if (useAccelX) //periodic boundary with usage of an accelerating force
-						{
-							if (pos.first < 0) pos.first = LatticeColsMinusOne;
-							else if (pos.first >= LatticeCols) pos.first = 0;
-						}
-						else
-						{
-							// bounce them back
-							if ((pos.first == 0 || pos.first == LatticeColsMinusOne) && !(pos.second == 0 || pos.second == LatticeRowsMinusOne))
-								direction = Cell::Reverse(direction);
-						}
-
-						// ***************************************************************************************************************
-
-						// top & bottom, depends on boundaryConditions
-						if (Periodic == boundaryConditions)
-						{
-							if (pos.second < 0) pos.second = LatticeRowsMinusOne;
-							else if (pos.second >= LatticeRows) pos.second = 0;
-						}
-						else if (pos.second == 0 || pos.second == LatticeRowsMinusOne)
-						{
-							if (BounceBack == boundaryConditions) direction = Cell::Reverse(direction);
-							else direction = Cell::ReflectVert(direction);
-						}
-
-						// ***************************************************************************************************************
-
-						// bounce back for regular obstacles
-						if (latticeObstacles(pos.second, pos.first)) direction = Cell::Reverse(direction);
-
-						// x, y = old position, pos = new position, dir - original direction, direction - new direction
-						if (pos.first >= 0 && pos.first < LatticeCols && pos.second >= 0 && pos.second < LatticeRows)
-							latticeWork(pos.second, pos.first).density[direction] = lattice(y, x).density[dir];
-					}
-				}
+				CollideAndStreamCell(x, LatticeRowsMinusOne, ShouldCollideAtUpDownBoundary, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, accelYtau, tau, latticeWork);
 			}
-
 
 			DealWithInletOutlet(latticeWork, startCol, endCol, LatticeRows, LatticeCols, LatticeRowsMinusOne, LatticeColsMinusOne);
 
 			SignalMoreData();
 		}
 	}
+
 
 	void Lattice::Simulate()
 	{
@@ -222,21 +163,21 @@ namespace LatticeBoltzmann {
 		switch (resultsType)
 		{
 		case Density:
-			for (int i = 0; i < lattice.rows(); ++i)
-				for (int j = 0; j < lattice.cols(); ++j)
+			for (int j = 0; j < lattice.cols(); ++j)
+				for (int i = 0; i < lattice.rows(); ++i)
 					results(i, j) = lattice(i, j).Density();
 			break;
 		case Speed:
-			for (int i = 0; i < lattice.rows(); ++i)
-				for (int j = 0; j < lattice.cols(); ++j)
+			for (int j = 0; j < lattice.cols(); ++j)
+				for (int i = 0; i < lattice.rows(); ++i)
 				{
 					auto res = lattice(i, j).Velocity();
 					results(i, j) = sqrt(res.first * res.first + res.second * res.second);
 				}
 			break;
 		case Vorticity:
-			for (int i = 0; i < lattice.rows(); ++i)
-				for (int j = 0; j < lattice.cols(); ++j)
+			for (int j = 0; j < lattice.cols(); ++j)
+				for (int i = 0; i < lattice.rows(); ++i)
 				{
 					auto v = lattice(i, j).Velocity();
 

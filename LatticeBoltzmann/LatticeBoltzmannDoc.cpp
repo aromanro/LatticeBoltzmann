@@ -143,12 +143,12 @@ void CLatticeBoltzmannDoc::SetImageAndStartComputing(const CImage& image)
 {
 	StopSimulation();
 
-	lattice.latticeObstacles = Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>(image.GetHeight(), image.GetWidth());
+	lattice.latticeObstacles = Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic, LatticeBoltzmann::Lattice::DataOrder>(image.GetHeight(), image.GetWidth());
 
 	const COLORREF freeColor = image.GetPixel(0, 0);
 
-	for (int i = 0; i < image.GetHeight(); ++i)
-		for (int j = 0; j < image.GetWidth(); ++j)
+	for (int j = 0; j < image.GetWidth(); ++j)
+		for (int i = 0; i < image.GetHeight(); ++i)
 		{
 			if (freeColor != image.GetPixel(j, i))
 				lattice.latticeObstacles(i, j) = true;

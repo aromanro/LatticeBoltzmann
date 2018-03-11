@@ -1,6 +1,6 @@
 #pragma once
 
-#include <eigen/eigen>
+#include "Lattice.h"
 
 class MemoryBitmap
 {
@@ -71,7 +71,7 @@ protected:
 public:
 	void SetSize(int width, int height);
 
-	void SetMatrix(const Eigen::MatrixXd& results, int resultsType, const Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic>& latticeObstacles);
+	void SetMatrix(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, LatticeBoltzmann::Lattice::DataOrder>& results, int resultsType, const Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic, LatticeBoltzmann::Lattice::DataOrder>& latticeObstacles);
 
 	void Draw(CDC* pDC);
 	void Draw(CDC* pDC, CRect& rect, int origWidth = 0, int origHeight = 0);

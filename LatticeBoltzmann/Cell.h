@@ -13,8 +13,8 @@ namespace LatticeBoltzmann {
 		~Cell();
 
 
-		static std::array<int, 9> ex;
-		static std::array<int, 9> ey;
+		static std::array<signed char, 9> ex;
+		static std::array<signed char, 9> ey;
 
 		static std::array<double, 9> coeff;
 
@@ -97,7 +97,7 @@ namespace LatticeBoltzmann {
 		{
 			double tDensity = 0;
 
-			for (int i = 0; i < 9; ++i)
+			for (unsigned char i = 0; i < 9; ++i)
 				tDensity += density[i];
 
 			return tDensity;
@@ -110,7 +110,7 @@ namespace LatticeBoltzmann {
 			double vy = 0;
 
 
-			for (int i = 0; i < 9; ++i)
+			for (unsigned char i = 0; i < 9; ++i)
 			{
 				tDensity += density[i];
 				vx += ex[i] * density[i];
@@ -152,7 +152,7 @@ namespace LatticeBoltzmann {
 			static const double coeff2 = 9. / 2.;
 			static const double coeff3 = -3. / 2.;
 
-			for (int i = 0; i < 9; ++i)
+			for (unsigned char i = 0; i < 9; ++i)
 			{
 				const double term = ex[i] * vx + ey[i] * vy;
 
@@ -167,7 +167,7 @@ namespace LatticeBoltzmann {
 		{
 			const std::array<double, 9> equilibriumDistribution = Equilibrium(accelXtau, accelYtau);
 
-			for (int i = 0; i < 9; ++i)
+			for (unsigned char i = 0; i < 9; ++i)
 				density[i] -= (density[i] - equilibriumDistribution[i]) / tau;
 		}
 
