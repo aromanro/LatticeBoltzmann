@@ -49,7 +49,7 @@ namespace LatticeBoltzmann {
 
 		double tau;
 		double accelX; // only applied to the left side to 'push' the fluid through the 'pipe'
-		double accelY; // can be used to add gravity, not actually used - set to zero
+		//double accelY; // can be used to add gravity, not actually used - set to zero
 
 
 		int useAccelX;
@@ -93,11 +93,13 @@ namespace LatticeBoltzmann {
 		void WaitForData();
 		void SignalMoreData();
 
-		inline void CollideAndStreamCell(int x, int y, bool ShouldCollide, bool useAccelX, int LatticeRowsMinusOne, int LatticeRows, int LatticeColsMinusOne, int LatticeCols, double accelXtau, double accelYtau, double tau, CellLattice& latticeWork)
+
+		// this and Equilibrium take up most of the cpu time so they would benefit a lot from optimizations
+		inline void CollideAndStreamCell(int x, int y, bool ShouldCollide, bool xInsideBoundaryOrUseAccel, bool useAccelX, int LatticeRowsMinusOne, int LatticeRows, int LatticeColsMinusOne, int LatticeCols, double accelXtau, /*double accelYtau,*/ double tau, CellLattice& latticeWork)
 		{
 			// collision
-			if (ShouldCollide && !latticeObstacles(y, x) && (useAccelX || (x > 0 && x < LatticeColsMinusOne)))
-				lattice(y, x).Collision(x == 0 && useAccelX ? accelXtau : 0, accelYtau, tau);
+			if (ShouldCollide && !latticeObstacles(y, x) && xInsideBoundaryOrUseAccel)
+				lattice(y, x).Collision(x == 0 && useAccelX ? accelXtau : 0, /*accelYtau,*/ tau);
 
 			// stream
 
@@ -113,12 +115,9 @@ namespace LatticeBoltzmann {
 			for (unsigned char dir = 0; dir < 9; ++dir)
 			{
 				Cell::Direction direction = static_cast<Cell::Direction>(dir);
-
-				auto pos = Cell::GetNextPosition(direction, x, LatticeRowsMinusOne - y);
-				pos.second = LatticeRowsMinusOne - pos.second;
+				auto pos = Cell::GetNextPosition(direction, x, y);
 
 				// ***************************************************************************************************************
-
 				// left & right 
 
 
@@ -135,8 +134,8 @@ namespace LatticeBoltzmann {
 				}
 
 				// ***************************************************************************************************************
-
 				// top & bottom, depends on boundaryConditions
+
 				if (Periodic == boundaryConditions)
 				{
 					if (pos.second < 0) pos.second = LatticeRowsMinusOne;

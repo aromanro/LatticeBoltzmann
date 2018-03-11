@@ -10,7 +10,7 @@ namespace LatticeBoltzmann {
 	const double c1 = 1. / 9;
 	const double c2 = 1. / 36.;
 	
-	                                                   // 0, N, NE,E, SE,  S, SW,  W, NW
+	                                                                // 0, N, NE,E, SE,  S, SW,  W, NW
 	std::array<signed char, 9> Cell::ex = std::array<signed char, 9>{ {0, 0, 1, 1,  1,  0, -1, -1, -1} };
 	std::array<signed char, 9> Cell::ey = std::array<signed char, 9>{ {0, 1, 1, 0, -1, -1, -1,  0,  1} };
 
@@ -21,10 +21,6 @@ namespace LatticeBoltzmann {
 	{
 	}
 
-
-	Cell::~Cell()
-	{
-	}
 
 
 

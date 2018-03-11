@@ -5,7 +5,8 @@ namespace LatticeBoltzmann {
 
 	Lattice::Lattice()
 		: resultsType(Density), boundaryConditions(BounceBack), simulate(true), refreshSteps(10),
-		accelX(0.015), accelY(0),
+		accelX(0.015), 
+//		accelY(0),
 		useAccelX(0),
 		inletOption(1), outletOption(1),
 		inletDensity(1.05), outletDensity(1.),
@@ -87,7 +88,7 @@ namespace LatticeBoltzmann {
 		const int LatticeColsMinusOne = LatticeCols - 1;
 
 		const double accelXtau = accelX * tau;
-		const double accelYtau = accelY * tau;
+		//const double accelYtau = accelY * tau;
 
 		const bool ShouldCollideAtUpDownBoundary = (Periodic == boundaryConditions);
 
@@ -102,12 +103,14 @@ namespace LatticeBoltzmann {
 
 			for (int x = startCol; x < endCol; ++x)
 			{
-				CollideAndStreamCell(x, 0, ShouldCollideAtUpDownBoundary, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, accelYtau, tau, latticeWork);
+				const bool xInsideBoundaryOrUseAccel = useAccelX || (x > 0 && x < LatticeColsMinusOne);
+
+				CollideAndStreamCell(x, 0, ShouldCollideAtUpDownBoundary, xInsideBoundaryOrUseAccel, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, /*accelYtau,*/ tau, latticeWork);
 
 				for (int y = 1; y < LatticeRowsMinusOne; ++y)
-					CollideAndStreamCell(x, y, true, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, accelYtau, tau, latticeWork);
+					CollideAndStreamCell(x, y, true, xInsideBoundaryOrUseAccel, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, /*accelYtau,*/ tau, latticeWork);
 
-				CollideAndStreamCell(x, LatticeRowsMinusOne, ShouldCollideAtUpDownBoundary, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, accelYtau, tau, latticeWork);
+				CollideAndStreamCell(x, LatticeRowsMinusOne, ShouldCollideAtUpDownBoundary, xInsideBoundaryOrUseAccel, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, /*accelYtau,*/ tau, latticeWork);
 			}
 
 			DealWithInletOutlet(latticeWork, startCol, endCol, LatticeRows, LatticeCols, LatticeRowsMinusOne, LatticeColsMinusOne);

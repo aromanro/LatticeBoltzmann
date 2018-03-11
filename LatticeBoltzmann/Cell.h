@@ -10,8 +10,6 @@ namespace LatticeBoltzmann {
 	{
 	public:
 		Cell();
-		~Cell();
-
 
 		static std::array<signed char, 9> ex;
 		static std::array<signed char, 9> ey;
@@ -39,7 +37,9 @@ namespace LatticeBoltzmann {
 
 		inline static std::pair<int, int> GetNextPosition(Direction direction, int x, int y)
 		{
-			return std::make_pair<int, int>(x + ex[direction], y + ey[direction]);
+			// - for the y is because y coordinate is reversed, 0 is top
+			// alternatively, one could just change the signs in the ey array
+			return std::make_pair<int, int>(x + ex[direction], y - ey[direction]);
 		}
 
 		inline static Direction Reverse(Direction dir)
@@ -124,27 +124,26 @@ namespace LatticeBoltzmann {
 
 		// this can be optimized, I won't do that to have the code easy to understand
 		// accelX, accelY are here to let you add a 'force' (as for example gravity, or some force to move the fluid at an inlet)
-		inline std::array<double, 9> Equilibrium(double accelXtau, double accelYtau) const
+		inline std::array<double, 9> Equilibrium(double accelXtau/*, double accelYtau*/) const
 		{
 			std::array<double, 9> result;
 
 			double totalDensity = density[0];
-			double vx = ex[0] * density[0];
-			double vy = ey[0] * density[0];
+			double vx = 0;
+			double vy = 0;
 			
-			for (int i = 1; i < 9; ++i)
+			for (unsigned char i = 1; i < 9; ++i)
 			{
 				totalDensity += density[i];
 				vx += ex[i] * density[i];
 				vy += ey[i] * density[i];
 			}
 
-
 			vx /= totalDensity;
 			vy /= totalDensity;
 
 			vx += accelXtau;
-			vy += accelYtau;
+			//vy += accelYtau;
 			
 			const double v2 = vx * vx + vy * vy;
 
@@ -152,7 +151,11 @@ namespace LatticeBoltzmann {
 			static const double coeff2 = 9. / 2.;
 			static const double coeff3 = -3. / 2.;
 
-			for (unsigned char i = 0; i < 9; ++i)
+			
+			// optimization for i == 0, one could optimize all of them
+			result[0] = coeff[0] * totalDensity * (1. + coeff3 * v2);
+
+			for (unsigned char i = 1; i < 9; ++i)
 			{
 				const double term = ex[i] * vx + ey[i] * vy;
 
@@ -163,9 +166,9 @@ namespace LatticeBoltzmann {
 		}
 
 
-		inline void Collision(double accelXtau, double accelYtau, double tau)
+		inline void Collision(double accelXtau, /*double accelYtau,*/ double tau)
 		{
-			const std::array<double, 9> equilibriumDistribution = Equilibrium(accelXtau, accelYtau);
+			const std::array<double, 9> equilibriumDistribution = Equilibrium(accelXtau/*, accelYtau*/);
 
 			for (unsigned char i = 0; i < 9; ++i)
 				density[i] -= (density[i] - equilibriumDistribution[i]) / tau;
