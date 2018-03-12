@@ -84,8 +84,10 @@ namespace LatticeBoltzmann {
 
 		const int LatticeRows = static_cast<int>(lattice.rows());
 		const int LatticeRowsMinusOne = LatticeRows - 1;
+		const int LatticeRowsMinusTwo = LatticeRows - 2;
 		const int LatticeCols = static_cast<int>(lattice.cols());
 		const int LatticeColsMinusOne = LatticeCols - 1;
+		const int LatticeColsMinusTwo = LatticeCols - 2;
 
 		const double accelXtau = accelX * tau;
 		//const double accelYtau = accelY * tau;
@@ -101,17 +103,74 @@ namespace LatticeBoltzmann {
 				break;
 			}
 
+
+
+			/*
+
+			// Before:
+
 			for (int x = startCol; x < endCol; ++x)
 			{
 				const bool xInsideBoundaryOrUseAccel = useAccelX || (x > 0 && x < LatticeColsMinusOne);
 
-				CollideAndStreamCell(x, 0, ShouldCollideAtUpDownBoundary, xInsideBoundaryOrUseAccel, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, /*accelYtau,*/ tau, latticeWork);
+				CollideAndStreamCell(x, 0, ShouldCollideAtUpDownBoundary, xInsideBoundaryOrUseAccel, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, tau, latticeWork);
 
 				for (int y = 1; y < LatticeRowsMinusOne; ++y)
-					CollideAndStreamCell(x, y, true, xInsideBoundaryOrUseAccel, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, /*accelYtau,*/ tau, latticeWork);
+					CollideAndStreamCell(x, y, true, xInsideBoundaryOrUseAccel, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, tau, latticeWork);
 
-				CollideAndStreamCell(x, LatticeRowsMinusOne, ShouldCollideAtUpDownBoundary, xInsideBoundaryOrUseAccel, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, /*accelYtau,*/ tau, latticeWork);
+				CollideAndStreamCell(x, LatticeRowsMinusOne, ShouldCollideAtUpDownBoundary, xInsideBoundaryOrUseAccel, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, tau, latticeWork);
 			}
+			*/
+
+
+
+			// everything that needs the complex checks is called with the 'slow' variant - that is, for cells close to the boundaries
+			// everything else use the fast variant
+
+			if (startCol < 2)
+			{
+				// column 0
+				CollideAndStreamCellSlow(0, 0, ShouldCollideAtUpDownBoundary, useAccelX, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, tau, latticeWork);
+				for (int y = 1; y < LatticeRowsMinusOne; ++y)
+					CollideAndStreamCellSlow(0, y, true, useAccelX, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, tau, latticeWork);
+				CollideAndStreamCellSlow(0, LatticeRowsMinusOne, ShouldCollideAtUpDownBoundary, useAccelX, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, tau, latticeWork);
+
+				// column 1
+				CollideAndStreamCellSlow(1, 0, ShouldCollideAtUpDownBoundary, true, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, tau, latticeWork);
+				for (int y = 1; y < LatticeRowsMinusOne; ++y)
+					CollideAndStreamCellSlow(1, y, true, true, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, tau, latticeWork);
+				CollideAndStreamCellSlow(1, LatticeRowsMinusOne, ShouldCollideAtUpDownBoundary, true, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, tau, latticeWork);
+			}
+
+			for (int x = ((startCol < 2) ? 2 : startCol); x < ((endCol >= LatticeColsMinusTwo) ? LatticeColsMinusTwo : endCol); ++x)
+			{
+				// first couple of rows
+				CollideAndStreamCellSlow(x, 0, ShouldCollideAtUpDownBoundary, true, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, tau, latticeWork);
+				CollideAndStreamCellSlow(x, 1, true, true, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, tau, latticeWork);
+
+				for (int y = 2; y < LatticeRowsMinusTwo; ++y)
+					CollideAndStreamCellFast(x, y, tau, latticeWork);
+
+				// last couple of rows
+				CollideAndStreamCellSlow(x, LatticeRowsMinusTwo, true, true, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, tau, latticeWork);
+				CollideAndStreamCellSlow(x, LatticeRowsMinusOne, ShouldCollideAtUpDownBoundary, true, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, tau, latticeWork);
+			}
+
+			if (endCol >= LatticeColsMinusTwo)
+			{
+				// LatticeColsMinusTwo column
+				CollideAndStreamCellSlow(LatticeColsMinusTwo, 0, ShouldCollideAtUpDownBoundary, true, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, tau, latticeWork);
+				for (int y = 1; y < LatticeRowsMinusOne; ++y)
+					CollideAndStreamCellSlow(LatticeColsMinusTwo, y, true, true, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, tau, latticeWork);
+				CollideAndStreamCellSlow(LatticeColsMinusTwo, LatticeRowsMinusOne, ShouldCollideAtUpDownBoundary, true, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, tau, latticeWork);
+
+				// last column
+				CollideAndStreamCellSlow(LatticeColsMinusOne, 0, ShouldCollideAtUpDownBoundary, useAccelX, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, tau, latticeWork);
+				for (int y = 1; y < LatticeRowsMinusOne; ++y)
+					CollideAndStreamCellSlow(LatticeColsMinusOne, y, true, useAccelX, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, tau, latticeWork);
+				CollideAndStreamCellSlow(LatticeColsMinusOne, LatticeRowsMinusOne, ShouldCollideAtUpDownBoundary, useAccelX, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols, accelXtau, tau, latticeWork);
+			}
+
 
 			DealWithInletOutlet(latticeWork, startCol, endCol, LatticeRows, LatticeCols, LatticeRowsMinusOne, LatticeColsMinusOne);
 

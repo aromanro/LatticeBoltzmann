@@ -338,7 +338,7 @@ void CMainFrame::OnFileOpen()
 						CImage image;
 						image.Load(pathName);
 
-						if (image.IsNull() || image.GetHeight() == 0 || image.GetWidth() == 0) return;
+						if (image.IsNull() || image.GetHeight() <= 32 || image.GetWidth() <= 64) return;
 
 						pDoc->SetImageAndStartComputing(image);
 						pDoc->SetTitle(dlg.GetFileTitle());

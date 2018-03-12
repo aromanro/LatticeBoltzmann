@@ -95,7 +95,7 @@ namespace LatticeBoltzmann {
 
 
 		// this and Equilibrium take up most of the cpu time so they would benefit a lot from optimizations
-		inline void CollideAndStreamCell(int x, int y, bool ShouldCollide, bool xInsideBoundaryOrUseAccel, bool useAccelX, int LatticeRowsMinusOne, int LatticeRows, int LatticeColsMinusOne, int LatticeCols, double accelXtau, /*double accelYtau,*/ double tau, CellLattice& latticeWork)
+		inline void CollideAndStreamCellSlow(int x, int y, bool ShouldCollide, bool xInsideBoundaryOrUseAccel, bool useAccelX, int LatticeRowsMinusOne, int LatticeRows, int LatticeColsMinusOne, int LatticeCols, double accelXtau, /*double accelYtau,*/ double tau, CellLattice& latticeWork)
 		{
 			// collision
 			if (ShouldCollide && !latticeObstacles(y, x) && xInsideBoundaryOrUseAccel)
@@ -149,7 +149,7 @@ namespace LatticeBoltzmann {
 
 				// ***************************************************************************************************************
 
-				if ((pos.first >= 0 || pos.first < LatticeCols) && (pos.second >= 0 || pos.second < LatticeRows))
+				if (pos.first >= 0 && pos.first < LatticeCols && pos.second >= 0 && pos.second < LatticeRows)
 				{
 				    // bounce back for regular obstacles
 					if (latticeObstacles(pos.second, pos.first)) direction = Cell::Reverse(direction);
@@ -160,6 +160,28 @@ namespace LatticeBoltzmann {
 
 			}
 		}
+
+
+
+		inline void CollideAndStreamCellFast(int x, int y, double tau, CellLattice& latticeWork)
+		{
+			// collision
+			if (!latticeObstacles(y, x))
+				lattice(y, x).Collision(0, /*accelYtau,*/ tau);
+
+			for (unsigned char dir = 0; dir < 9; ++dir)
+			{
+				Cell::Direction direction = static_cast<Cell::Direction>(dir);
+				auto pos = Cell::GetNextPosition(direction, x, y);
+
+				// bounce back for regular obstacles
+				if (latticeObstacles(pos.second, pos.first)) direction = Cell::Reverse(direction);
+
+				// x, y = old position, pos = new position, dir - original direction, direction - new direction
+				latticeWork(pos.second, pos.first).density[direction] = lattice(y, x).density[dir];
+			}
+		}
+
 
 		void CollideAndStream(int tid, CellLattice* latticeW, int startCol, int endCol);
 

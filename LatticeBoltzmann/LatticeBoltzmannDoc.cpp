@@ -157,7 +157,7 @@ void CLatticeBoltzmannDoc::SetImageAndStartComputing(const CImage& image)
 		}
 
 	// set the other parameters from options
-	lattice.numThreads = theApp.options.numThreads;
+	lattice.numThreads = std::min<unsigned int>(theApp.options.numThreads, static_cast<unsigned int>(image.GetWidth()/4)); // at least 4 columns / thread, no matter what
 	lattice.refreshSteps = theApp.options.refreshSteps;
 
 	lattice.resultsType = static_cast<LatticeBoltzmann::Lattice::ResultsType>(theApp.options.resultsType);
