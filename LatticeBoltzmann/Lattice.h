@@ -141,7 +141,7 @@ namespace LatticeBoltzmann {
 					if (pos.second < 0) pos.second = LatticeRowsMinusOne;
 					else if (pos.second >= LatticeRows) pos.second = 0;
 				}
-				else if (pos.second == 0 || pos.second == LatticeRowsMinusOne)
+				else if (pos.second <= 0 || pos.second >= LatticeRowsMinusOne)
 				{
 					if (BounceBack == boundaryConditions) direction = Cell::Reverse(direction);
 					else direction = Cell::ReflectVert(direction);
@@ -150,7 +150,8 @@ namespace LatticeBoltzmann {
 				// ***************************************************************************************************************
 
 				// bounce back for regular obstacles
-				if (latticeObstacles(pos.second, pos.first)) direction = Cell::Reverse(direction);
+				const bool inside = (pos.first > 0 || pos.first < LatticeColsMinusOne) && (pos.second > 0 || pos.second < LatticeRowsMinusOne);
+				if (inside && latticeObstacles(pos.second, pos.first)) direction = Cell::Reverse(direction);
 
 				// x, y = old position, pos = new position, dir - original direction, direction - new direction
 				if (pos.first >= 0 && pos.first < LatticeCols && pos.second >= 0 && pos.second < LatticeRows)

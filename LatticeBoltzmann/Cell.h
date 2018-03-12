@@ -145,7 +145,9 @@ namespace LatticeBoltzmann {
 			vx += accelXtau;
 			//vy += accelYtau;
 			
-			const double v2 = vx * vx + vy * vy;
+			const double vx2 = vx * vx;
+			const double vy2 = vy * vy;
+			const double v2 = vx2 + vy2;
 
 			static const double coeff1 = 3.;
 			static const double coeff2 = 9. / 2.;
@@ -165,9 +167,9 @@ namespace LatticeBoltzmann {
 
 
 			const double coeff1vx = coeff1 * vx;
-			const double coeff2vx2 = coeff2 * vx * vx;
+			const double coeff2vx2 = coeff2 * vx2;
 			const double coeff1vy = coeff1 * vy;
-			const double coeff2vy2 = coeff2 * vy * vy;
+			const double coeff2vy2 = coeff2 * vy2;
 
 			const double onePluscoeff3v2 = 1. + coeff3 * v2; 
 
