@@ -149,13 +149,14 @@ namespace LatticeBoltzmann {
 
 				// ***************************************************************************************************************
 
-				// bounce back for regular obstacles
-				const bool inside = (pos.first > 0 || pos.first < LatticeColsMinusOne) && (pos.second > 0 || pos.second < LatticeRowsMinusOne);
-				if (inside && latticeObstacles(pos.second, pos.first)) direction = Cell::Reverse(direction);
+				if ((pos.first >= 0 || pos.first < LatticeCols) && (pos.second >= 0 || pos.second < LatticeRows))
+				{
+				    // bounce back for regular obstacles
+					if (latticeObstacles(pos.second, pos.first)) direction = Cell::Reverse(direction);
 
-				// x, y = old position, pos = new position, dir - original direction, direction - new direction
-				if (pos.first >= 0 && pos.first < LatticeCols && pos.second >= 0 && pos.second < LatticeRows)
+					// x, y = old position, pos = new position, dir - original direction, direction - new direction
 					latticeWork(pos.second, pos.first).density[direction] = lattice(y, x).density[dir];
+				}
 
 			}
 		}
