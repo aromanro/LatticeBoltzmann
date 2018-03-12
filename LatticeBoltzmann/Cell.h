@@ -151,16 +151,60 @@ namespace LatticeBoltzmann {
 			static const double coeff2 = 9. / 2.;
 			static const double coeff3 = -3. / 2.;
 
-			
-			// optimization for i == 0, one could optimize all of them
-			result[0] = coeff[0] * totalDensity * (1. + coeff3 * v2);
+			// this is the original code described on the blog
+			// what follows is loop unrolling optimized somewhat, by avoiding recalculating some terms
 
-			for (unsigned char i = 1; i < 9; ++i)
+			/*
+			for (unsigned char i = 0; i < 9; ++i)
 			{
 				const double term = ex[i] * vx + ey[i] * vy;
 
 				result[i] = coeff[i] * totalDensity * (1. + coeff1 * term + coeff2 * term * term + coeff3 * v2);
 			}
+			*/
+
+
+			const double coeff1vx = coeff1 * vx;
+			const double coeff2vx2 = coeff2 * vx * vx;
+			const double coeff1vy = coeff1 * vy;
+			const double coeff2vy2 = coeff2 * vy * vy;
+
+			const double onePluscoeff3v2 = 1. + coeff3 * v2; 
+
+			result[0] = coeff[0] * totalDensity * onePluscoeff3v2; // 0, 0 - vx, vy
+
+			const double coeff2vy2PlusonePluscoeff3v2 = coeff2vy2 + onePluscoeff3v2;
+
+			result[1] = coeff[1] * totalDensity * (coeff1vy + coeff2vy2PlusonePluscoeff3v2); // 0, 1 - vx, vy
+
+			const double term2 = vx + vy;
+			const double coeff1term2 = coeff1 * term2;
+			const double coeff2term22 = coeff2 * term2 * term2;
+
+			const double coeff2term22PlusonePluscoeff3v2 = coeff2term22 + onePluscoeff3v2;
+
+			result[2] = coeff[2] * totalDensity * (coeff1term2 + coeff2term22PlusonePluscoeff3v2); // 1, 1 - vx, vy
+
+
+			const double coeff2vx2PlusonePluscoeff3v2 = coeff2vx2 + onePluscoeff3v2;
+			result[3] = coeff[3] * totalDensity * (coeff1vx + coeff2vx2PlusonePluscoeff3v2); // 1, 0 - vx, vy
+
+			const double term4 = vx - vy;
+			const double coeff1term4 = coeff1 * term4;
+			const double coeff2term42 = coeff2 * term4 * term4;
+
+			const double coeff2term42PlusonePluscoeff3v2 = coeff2term42 + onePluscoeff3v2;
+			
+			result[4] = coeff[4] * totalDensity * (coeff1term4 + coeff2term42PlusonePluscoeff3v2); // 1, -1 - vx, vy
+
+			result[5] = coeff[5] * totalDensity * (-coeff1vy + coeff2vy2PlusonePluscoeff3v2); // 0, -1 - vx, vy
+
+			result[6] = coeff[6] * totalDensity * (-coeff1term2 + coeff2term22PlusonePluscoeff3v2); // -1, -1 - vx, vy
+
+			result[7] = coeff[7] * totalDensity * (-coeff1vx + coeff2vx2PlusonePluscoeff3v2); // -1, 0 - vx, vy
+
+			result[8] = coeff[8] * totalDensity * (-coeff1term4 + coeff2term42PlusonePluscoeff3v2); // -1, 1 - vx, vy
+
 
 			return std::move(result);
 		}
