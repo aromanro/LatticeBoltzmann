@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Lattice.h"
-
+#define noexcept
 class MemoryBitmap
 {
 public:
