@@ -1,7 +1,11 @@
 #pragma once
 
 #include "Lattice.h"
+
+#if ( _MSC_VER < 1900 )
 #define noexcept
+#endif
+
 class MemoryBitmap
 {
 public:
