@@ -3,8 +3,9 @@
 #include <array>
 #include <atomic>
 #include <mutex>
-
-#include <eigen/eigen>
+#include <condition_variable>
+#include <thread>
+#include <eigen\eigen>
 
 #include "Cell.h"
 
@@ -38,7 +39,7 @@ namespace LatticeBoltzmann {
 
 		BoundaryConditions boundaryConditions;
 
-		std::atomic_bool simulate;
+		std::atomic<bool> simulate;
 
 		unsigned int refreshSteps;
 		unsigned int numThreads;
