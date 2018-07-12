@@ -20,46 +20,46 @@ trail :
 	-@ if NOT EXIST "x64" mkdir "x64"
 	-@ if NOT EXIST "x64\Release" mkdir "x64\Release"
 
-x64\Release\MainFrm.obj : MainFrm.cpp MainFrm.h StdAfx.h resource.h 
+x64\Release\MainFrm.obj : MainFrm.cpp  MainFrm.h Lattice.h StdAfx.h resource.h 
      $(CC) $(CFLAGSMT) MainFrm.cpp
 
-x64\Release\Cell.obj : Cell.cpp Cell.h  StdAfx.h resource.h 
+x64\Release\Cell.obj : Cell.cpp Cell.h  Lattice.h StdAfx.h resource.h 
      $(CC) $(CFLAGSMT) Cell.cpp
 
-x64\Release\ComputationPropPage.obj : ComputationPropPage.cpp  ComputationPropPage.h StdAfx.h resource.h 
+x64\Release\ComputationPropPage.obj : ComputationPropPage.cpp  ComputationPropPage.h Lattice.h StdAfx.h resource.h 
      $(CC) $(CFLAGSMT) ComputationPropPage.cpp
 
 x64\Release\DisplayPropPage.obj : DisplayPropPage.cpp  DisplayPropPage.h StdAfx.h resource.h 
      $(CC) $(CFLAGSMT) DisplayPropPage.cpp
 
-x64\Release\InletOutletPropPage.obj : InletOutletPropPage.cpp  InletOutletPropPage.h StdAfx.h resource.h 
+x64\Release\InletOutletPropPage.obj : InletOutletPropPage.cpp  InletOutletPropPage.h Lattice.h StdAfx.h resource.h 
      $(CC) $(CFLAGSMT) InletOutletPropPage.cpp
 
 x64\Release\Lattice.obj :  Lattice.cpp Lattice.h StdAfx.h resource.h 
      $(CC) $(CFLAGSMT) Lattice.cpp
 
-x64\Release\LatticeBoltzmann.obj : LatticeBoltzmann.cpp  LatticeBoltzmann.h StdAfx.h resource.h 
+x64\Release\LatticeBoltzmann.obj : LatticeBoltzmann.cpp  LatticeBoltzmann.h  Lattice.h StdAfx.h resource.h 
      $(CC) $(CFLAGSMT) LatticeBoltzmann.cpp
 
-x64\Release\LatticeBoltzmannDoc.obj :  LatticeBoltzmannDoc.cpp LatticeBoltzmannDoc.h StdAfx.h resource.h 
+x64\Release\LatticeBoltzmannDoc.obj :  LatticeBoltzmannDoc.cpp  LatticeBoltzmannDoc.h Lattice.h StdAfx.h resource.h 
      $(CC) $(CFLAGSMT) LatticeBoltzmannDoc.cpp
 
-x64\Release\LatticeBoltzmannView.obj : LatticeBoltzmannView.cpp  LatticeBoltzmannView.h StdAfx.h resource.h 
+x64\Release\LatticeBoltzmannView.obj : LatticeBoltzmannView.cpp  Lattice.h LatticeBoltzmannView.h StdAfx.h resource.h 
      $(CC) $(CFLAGSMT) LatticeBoltzmannView.cpp
 
 x64\Release\MemoryBitmap.obj :  MemoryBitmap.cpp MemoryBitmap.h StdAfx.h resource.h 
      $(CC) $(CFLAGSMT) MemoryBitmap.cpp
 
-x64\Release\NumberEdit.obj : NumberEdit.cpp NumberEdit.h  StdAfx.h resource.h 
+x64\Release\NumberEdit.obj : NumberEdit.cpp NumberEdit.h Lattice.h StdAfx.h resource.h 
      $(CC) $(CFLAGSMT) NumberEdit.cpp
 
-x64\Release\Options.obj :  Options.cpp Options.h StdAfx.h resource.h 
+x64\Release\Options.obj :  Options.cpp Lattice.h Options.h StdAfx.h resource.h 
      $(CC) $(CFLAGSMT) Options.cpp
 
-x64\Release\OptionsPropertySheet.obj :  OptionsPropertySheet.cpp OptionsPropertySheet.h StdAfx.h resource.h 
+x64\Release\OptionsPropertySheet.obj :  OptionsPropertySheet.cpp OptionsPropertySheet.h Lattice.h StdAfx.h resource.h 
      $(CC) $(CFLAGSMT) OptionsPropertySheet.cpp
 
-x64\Release\SimulationPropPage.obj :  SimulationPropPage.cpp SimulationPropPage.h StdAfx.h resource.h 
+x64\Release\SimulationPropPage.obj :  SimulationPropPage.cpp SimulationPropPage.h Lattice.h StdAfx.h resource.h 
      $(CC) $(CFLAGSMT) SimulationPropPage.cpp
 
 x64\Release\LatticeBoltzmann.res : LatticeBoltzmann.rc resource.h res\LatticeBoltzmann.rc2 

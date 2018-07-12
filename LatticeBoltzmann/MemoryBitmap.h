@@ -18,8 +18,8 @@ public:
 
 	~MemoryBitmap() noexcept;
 protected:
-	int m_width;
-	int m_height;
+	_declspec(align(16)) int m_width;
+	_declspec(align(16)) int m_height;
 
 	unsigned char* data;
 
