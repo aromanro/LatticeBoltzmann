@@ -37,7 +37,7 @@ namespace LatticeBoltzmann {
 
 		ResultsType resultsType;
 
-		BoundaryConditions boundaryConditions;
+		_declspec(align(16)) BoundaryConditions boundaryConditions;
 
 		std::atomic<bool> simulate;
 
@@ -48,31 +48,30 @@ namespace LatticeBoltzmann {
 
 		typedef Eigen::Matrix<LatticeBoltzmann::Cell, Eigen::Dynamic, Eigen::Dynamic, DataOrder> CellLattice;
 
-		double tau;
-		double accelX; // only applied to the left side to 'push' the fluid through the 'pipe'
+		_declspec(align(16)) double tau;
+		_declspec(align(16)) double accelX; // only applied to the left side to 'push' the fluid through the 'pipe'
 		//double accelY; // can be used to add gravity, not actually used - set to zero
 
 
-		int useAccelX;
+		_declspec(align(16)) int useAccelX;
 
 		// inlet/outlet
 
-		int inletOption; // 0 - use inlet density, 1 - use inlet speed
-		int outletOption;
+		_declspec(align(16)) int inletOption; // 0 - use inlet density, 1 - use inlet speed
+		_declspec(align(16)) int outletOption;
 
-		double inletDensity;
-		double inletSpeed;
+		_declspec(align(16)) double inletDensity;
+		_declspec(align(16)) double inletSpeed;
 
-		double outletDensity;
-		double outletSpeed;
-
-
-		CellLattice lattice;
+		_declspec(align(16)) double outletDensity;
+		_declspec(align(16)) double outletSpeed;
 
 
-		Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic, DataOrder> latticeObstacles;
+		_declspec(align(16)) CellLattice lattice;
 
-		Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, DataOrder> results;
+
+		_declspec(align(16)) Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic, DataOrder> latticeObstacles;
+		_declspec(align(16)) Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, DataOrder> results;
 		std::mutex resMutex; // to protect the above and results type if changed during run
 
 
@@ -96,7 +95,7 @@ namespace LatticeBoltzmann {
 
 
 		// this and Equilibrium take up most of the cpu time so they would benefit a lot from optimizations
-		inline void CollideAndStreamCellSlow(int x, int y, bool ShouldCollide, bool xInsideBoundaryOrUseAccel, bool useAccelX, int LatticeRowsMinusOne, int LatticeRows, int LatticeColsMinusOne, int LatticeCols, double accelXtau, /*double accelYtau,*/ double tau, CellLattice& latticeWork)
+		void CollideAndStreamCellSlow(int x, int y, bool ShouldCollide, bool xInsideBoundaryOrUseAccel, bool useAccelX, int LatticeRowsMinusOne, int LatticeRows, int LatticeColsMinusOne, int LatticeCols, double accelXtau, /*double accelYtau,*/ double tau, CellLattice& latticeWork)
 		{
 			// collision
 			if (ShouldCollide && !latticeObstacles(y, x) && xInsideBoundaryOrUseAccel)
@@ -164,15 +163,16 @@ namespace LatticeBoltzmann {
 
 
 
-		inline void CollideAndStreamCellFast(int x, int y, double tau, CellLattice& latticeWork)
+		void CollideAndStreamCellFast(int x, int y, double tau, CellLattice& latticeWork)
 		{
+			_declspec(align(16)) Cell::Direction direction;			
 			// collision
 			if (!latticeObstacles(y, x))
 				lattice(y, x).Collision(0, /*accelYtau,*/ tau);
 
 			for (unsigned char dir = 0; dir < 9; ++dir)
 			{
-				Cell::Direction direction = static_cast<Cell::Direction>(dir);
+				direction = static_cast<Cell::Direction>(dir);
 				auto pos = Cell::GetNextPosition(direction, x, y);
 
 				// bounce back for regular obstacles
@@ -189,8 +189,12 @@ namespace LatticeBoltzmann {
 		void GetResults();
 
 
-		inline void DealWithInletOutlet(CellLattice& latticeWork, int startCol, int endCol, int LatticeRows, int LatticeCols, int LatticeRowsMinusOne, int LatticeColsMinusOne)
+		void DealWithInletOutlet(CellLattice& latticeWork, int startCol, int endCol, int LatticeRows, int LatticeCols, int LatticeRowsMinusOne, int LatticeColsMinusOne)
 		{
+			_declspec(align(16)) int lastCol;
+			_declspec(align(16)) double density;
+			_declspec(align(16)) double diff;
+			_declspec(align(16)) double speed;
 			// special treatment for inlet/outlet boundary conditions
 			if (!useAccelX)
 			{
@@ -201,20 +205,20 @@ namespace LatticeBoltzmann {
 					{
 						for (int y = (Periodic == boundaryConditions ? 0 : 1); y < (Periodic == boundaryConditions ? LatticeRows : LatticeRowsMinusOne); ++y)
 						{
-							double density = latticeWork(y, 1).Density();
-							double diff = 1. / 2. * (latticeWork(y, 1).density[Cell::Direction::N] - latticeWork(y, 1).density[Cell::Direction::S]);
+							density = latticeWork(y, 1).Density();
+							diff = 1. / 2 * (latticeWork(y, 1).density[Cell::Direction::N] - latticeWork(y, 1).density[Cell::Direction::S]);
 
-							latticeWork(y, 1).density[Cell::Direction::E] = latticeWork(y, 1).density[Cell::Direction::W] + 2. / 3. * density * inletSpeed;
-							latticeWork(y, 1).density[Cell::Direction::NE] = latticeWork(y, 1).density[Cell::Direction::SW] - diff + 1. / 6. * density * inletSpeed;
-							latticeWork(y, 1).density[Cell::Direction::SE] = latticeWork(y, 1).density[Cell::Direction::NW] + diff + 1. / 6. * density * inletSpeed;
+							latticeWork(y, 1).density[Cell::Direction::E] = latticeWork(y, 1).density[Cell::Direction::W] + 2. / 3 * density * inletSpeed;
+							latticeWork(y, 1).density[Cell::Direction::NE] = latticeWork(y, 1).density[Cell::Direction::SW] - diff + 1. / 6 * density * inletSpeed;
+							latticeWork(y, 1).density[Cell::Direction::SE] = latticeWork(y, 1).density[Cell::Direction::NW] + diff + 1. / 6 * density * inletSpeed;
 						}
 					}
 					else // density specified
 					{
 						for (int y = (Periodic == boundaryConditions ? 0 : 1); y < (Periodic == boundaryConditions ? LatticeRows : LatticeRowsMinusOne); ++y)
 						{
-							double speed = 1. - (latticeWork(y, 1).density[Cell::Direction::none] + latticeWork(y, 1).density[Cell::Direction::N] + latticeWork(y, 1).density[Cell::Direction::S] + 2.* (latticeWork(y, 1).density[Cell::Direction::NW] + latticeWork(y, 1).density[Cell::Direction::W] + latticeWork(y, 1).density[Cell::Direction::SW])) / inletDensity;
-							double diff = 1. / 2. * (latticeWork(y, 1).density[Cell::Direction::N] - latticeWork(y, 1).density[Cell::Direction::S]);
+							speed = 1. - (latticeWork(y, 1).density[Cell::Direction::none] + latticeWork(y, 1).density[Cell::Direction::N] + latticeWork(y, 1).density[Cell::Direction::S] + 2.* (latticeWork(y, 1).density[Cell::Direction::NW] + latticeWork(y, 1).density[Cell::Direction::W] + latticeWork(y, 1).density[Cell::Direction::SW])) / inletDensity;
+							diff = 1. / 2. * (latticeWork(y, 1).density[Cell::Direction::N] - latticeWork(y, 1).density[Cell::Direction::S]);
 
 							latticeWork(y, 1).density[Cell::Direction::E] = latticeWork(y, 1).density[Cell::Direction::W] + 2. / 3. * inletDensity * speed;
 							latticeWork(y, 1).density[Cell::Direction::NE] = latticeWork(y, 1).density[Cell::Direction::SW] - diff + 1. / 6. * inletDensity * speed;
@@ -224,13 +228,13 @@ namespace LatticeBoltzmann {
 				}
 				else if (LatticeCols == endCol) // outlet
 				{
-					int lastCol = LatticeColsMinusOne - 1;
+					lastCol = LatticeColsMinusOne - 1;
 					if (outletOption) // speed specified
 					{
 						for (int y = (Periodic == boundaryConditions ? 0 : 1); y < (Periodic == boundaryConditions ? LatticeRows : LatticeRowsMinusOne); ++y)
 						{
-							double density = latticeWork(y, lastCol).Density();
-							double diff = 1. / 2. * (latticeWork(y, lastCol).density[Cell::Direction::N] - latticeWork(y, lastCol).density[Cell::Direction::S]);
+							density = latticeWork(y, lastCol).Density();
+							diff = 1. / 2 * (latticeWork(y, lastCol).density[Cell::Direction::N] - latticeWork(y, lastCol).density[Cell::Direction::S]);
 
 							latticeWork(y, lastCol).density[Cell::Direction::W] = latticeWork(y, lastCol).density[Cell::Direction::E] - 2. / 3. * density * outletSpeed;
 							latticeWork(y, lastCol).density[Cell::Direction::NW] = latticeWork(y, lastCol).density[Cell::Direction::SE] - diff - 1. / 6. * density * outletSpeed;
@@ -241,10 +245,10 @@ namespace LatticeBoltzmann {
 					{
 						for (int y = (Periodic == boundaryConditions ? 0 : 1); y < (Periodic == boundaryConditions ? LatticeRows : LatticeRowsMinusOne); ++y)
 						{
-							double speed = 1. - (latticeWork(y, lastCol).density[Cell::Direction::none] + latticeWork(y, lastCol).density[Cell::Direction::N] + latticeWork(y, lastCol).density[Cell::Direction::S] + 2.* (latticeWork(y, lastCol).density[Cell::Direction::NE] + latticeWork(y, lastCol).density[Cell::Direction::E] + latticeWork(y, lastCol).density[Cell::Direction::SE])) / outletDensity;
-							double diff = 1. / 2. * (latticeWork(y, lastCol).density[Cell::Direction::N] - latticeWork(y, lastCol).density[Cell::Direction::S]);
+							speed = 1. - (latticeWork(y, lastCol).density[Cell::Direction::none] + latticeWork(y, lastCol).density[Cell::Direction::N] + latticeWork(y, lastCol).density[Cell::Direction::S] + 2.* (latticeWork(y, lastCol).density[Cell::Direction::NE] + latticeWork(y, lastCol).density[Cell::Direction::E] + latticeWork(y, lastCol).density[Cell::Direction::SE])) / outletDensity;
+							diff = 1. / 2. * (latticeWork(y, lastCol).density[Cell::Direction::N] - latticeWork(y, lastCol).density[Cell::Direction::S]);
 
-							latticeWork(y, lastCol).density[Cell::Direction::W] = latticeWork(y, lastCol).density[Cell::Direction::E] + 2. / 3. * outletDensity * speed;
+							latticeWork(y, lastCol).density[Cell::Direction::W] = latticeWork(y, lastCol).density[Cell::Direction::E] + 2. / 3 * outletDensity * speed;
 							latticeWork(y, lastCol).density[Cell::Direction::NW] = latticeWork(y, lastCol).density[Cell::Direction::SE] - diff + 1. / 6. * outletDensity * speed;
 							latticeWork(y, lastCol).density[Cell::Direction::SW] = latticeWork(y, lastCol).density[Cell::Direction::NE] + diff + 1. / 6. * outletDensity * speed;
 						}
