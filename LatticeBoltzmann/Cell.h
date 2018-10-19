@@ -5,18 +5,20 @@
 
 namespace LatticeBoltzmann {
 
+	constexpr int NumDir = 9;
 
 	class Cell
 	{
 	public:
 		Cell();
 
-		static std::array<signed char, 9> ex;
-		static std::array<signed char, 9> ey;
 
-		static std::array<double, 9> coeff;
+		static std::array<signed char, NumDir> ex;
+		static std::array<signed char, NumDir> ey;
 
-		std::array<double, 9> density;
+		static std::array<double, NumDir> coeff;
+
+		std::array<double, NumDir> density;
 
 		enum Direction
 		{
@@ -97,7 +99,7 @@ namespace LatticeBoltzmann {
 		{
 			double tDensity = 0;
 
-			for (unsigned char i = 0; i < 9; ++i)
+			for (unsigned char i = 0; i < NumDir; ++i)
 				tDensity += density[i];
 
 			return tDensity;
@@ -124,15 +126,15 @@ namespace LatticeBoltzmann {
 
 		// this can be optimized, I won't do that to have the code easy to understand
 		// accelX, accelY are here to let you add a 'force' (as for example gravity, or some force to move the fluid at an inlet)
-		inline std::array<double, 9> Equilibrium(double accelXtau/*, double accelYtau*/) const
+		inline std::array<double, NumDir> Equilibrium(double accelXtau/*, double accelYtau*/) const
 		{
-			std::array<double, 9> result;
+			std::array<double, NumDir> result;
 
 			double totalDensity = density[0];
 			double vx = 0;
 			double vy = 0;
 			
-			for (unsigned char i = 1; i < 9; ++i)
+			for (unsigned char i = 1; i < NumDir; ++i)
 			{
 				totalDensity += density[i];
 				vx += ex[i] * density[i];
@@ -157,7 +159,7 @@ namespace LatticeBoltzmann {
 			// what follows is loop unrolling optimized somewhat, by avoiding recalculating some terms
 
 			/*
-			for (unsigned char i = 0; i < 9; ++i)
+			for (unsigned char i = 0; i < NumDir; ++i)
 			{
 				const double term = ex[i] * vx + ey[i] * vy;
 
@@ -214,9 +216,9 @@ namespace LatticeBoltzmann {
 
 		inline void Collision(double accelXtau, /*double accelYtau,*/ double tau)
 		{
-			const std::array<double, 9> equilibriumDistribution = Equilibrium(accelXtau/*, accelYtau*/);
+			const std::array<double, NumDir> equilibriumDistribution = Equilibrium(accelXtau/*, accelYtau*/);
 
-			for (unsigned char i = 0; i < 9; ++i)
+			for (unsigned char i = 0; i < NumDir; ++i)
 				density[i] -= (density[i] - equilibriumDistribution[i]) / tau;
 		}
 

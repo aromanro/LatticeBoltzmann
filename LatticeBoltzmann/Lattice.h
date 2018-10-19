@@ -112,7 +112,7 @@ namespace LatticeBoltzmann {
 			// I did not want to complicate the code so much so for now I'll have it this way even if it's not efficient
 			// hopefully the compiler is able to do some optimizations :)
 
-			for (unsigned char dir = 0; dir < 9; ++dir)
+			for (unsigned char dir = 0; dir < NumDir; ++dir)
 			{
 				Cell::Direction direction = static_cast<Cell::Direction>(dir);
 				auto pos = Cell::GetNextPosition(direction, x, y);
@@ -170,7 +170,7 @@ namespace LatticeBoltzmann {
 			if (!latticeObstacles(y, x))
 				lattice(y, x).Collision(0, /*accelYtau,*/ tau);
 
-			for (unsigned char dir = 0; dir < 9; ++dir)
+			for (unsigned char dir = 0; dir < NumDir; ++dir)
 			{
 				direction = static_cast<Cell::Direction>(dir);
 				auto pos = Cell::GetNextPosition(direction, x, y);
