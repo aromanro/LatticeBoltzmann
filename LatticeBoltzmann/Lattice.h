@@ -21,14 +21,14 @@ namespace LatticeBoltzmann {
 		~Lattice();
 
 
-		enum BoundaryConditions
+		enum class BoundaryConditions
 		{
 			Periodic = 0,
 			BounceBack,
 			Slippery
 		};
 
-		enum ResultsType
+		enum class ResultsType
 		{
 			Density = 0,
 			Speed,
@@ -136,14 +136,14 @@ namespace LatticeBoltzmann {
 				// ***************************************************************************************************************
 				// top & bottom, depends on boundaryConditions
 
-				if (Periodic == boundaryConditions)
+				if (BoundaryConditions::Periodic == boundaryConditions)
 				{
 					if (pos.second < 0) pos.second = LatticeRowsMinusOne;
 					else if (pos.second >= LatticeRows) pos.second = 0;
 				}
 				else if (pos.second <= 0 || pos.second >= LatticeRowsMinusOne)
 				{
-					if (BounceBack == boundaryConditions) direction = Cell::Reverse(direction);
+					if (BoundaryConditions::BounceBack == boundaryConditions) direction = Cell::Reverse(direction);
 					else direction = Cell::ReflectVert(direction);
 				}
 
@@ -155,7 +155,7 @@ namespace LatticeBoltzmann {
 					if (latticeObstacles(pos.second, pos.first)) direction = Cell::Reverse(direction);
 
 					// x, y = old position, pos = new position, dir - original direction, direction - new direction
-					latticeWork(pos.second, pos.first).density[direction] = lattice(y, x).density[dir];
+					latticeWork(pos.second, pos.first).density[static_cast<size_t>(direction)] = lattice(y, x).density[dir];
 				}
 
 			}
@@ -179,7 +179,7 @@ namespace LatticeBoltzmann {
 				if (latticeObstacles(pos.second, pos.first)) direction = Cell::Reverse(direction);
 
 				// x, y = old position, pos = new position, dir - original direction, direction - new direction
-				latticeWork(pos.second, pos.first).density[direction] = lattice(y, x).density[dir];
+				latticeWork(pos.second, pos.first).density[static_cast<size_t>(direction)] = lattice(y, x).density[dir];
 			}
 		}
 
@@ -203,26 +203,28 @@ namespace LatticeBoltzmann {
 				{
 					if (inletOption) // speed specified
 					{
-						for (int y = (Periodic == boundaryConditions ? 0 : 1); y < (Periodic == boundaryConditions ? LatticeRows : LatticeRowsMinusOne); ++y)
+						for (int y = (BoundaryConditions::Periodic == boundaryConditions ? 0 : 1); y < (BoundaryConditions::Periodic == boundaryConditions ? LatticeRows : LatticeRowsMinusOne); ++y)
 						{
 							density = latticeWork(y, 1).Density();
-							diff = 1. / 2 * (latticeWork(y, 1).density[Cell::Direction::N] - latticeWork(y, 1).density[Cell::Direction::S]);
+							diff = 1. / 2 * (latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::N)] - latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::S)]);
 
-							latticeWork(y, 1).density[Cell::Direction::E] = latticeWork(y, 1).density[Cell::Direction::W] + 2. / 3 * density * inletSpeed;
-							latticeWork(y, 1).density[Cell::Direction::NE] = latticeWork(y, 1).density[Cell::Direction::SW] - diff + 1. / 6 * density * inletSpeed;
-							latticeWork(y, 1).density[Cell::Direction::SE] = latticeWork(y, 1).density[Cell::Direction::NW] + diff + 1. / 6 * density * inletSpeed;
+							latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::E)] = latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::W)] + 2. / 3 * density * inletSpeed;
+							latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::NE)] = latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::SW)] - diff + 1. / 6 * density * inletSpeed;
+							latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::SE)] = latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::NW)] + diff + 1. / 6 * density * inletSpeed;
 						}
 					}
 					else // density specified
 					{
-						for (int y = (Periodic == boundaryConditions ? 0 : 1); y < (Periodic == boundaryConditions ? LatticeRows : LatticeRowsMinusOne); ++y)
+						for (int y = (BoundaryConditions::Periodic == boundaryConditions ? 0 : 1); y < (BoundaryConditions::Periodic == boundaryConditions ? LatticeRows : LatticeRowsMinusOne); ++y)
 						{
-							speed = 1. - (latticeWork(y, 1).density[Cell::Direction::none] + latticeWork(y, 1).density[Cell::Direction::N] + latticeWork(y, 1).density[Cell::Direction::S] + 2.* (latticeWork(y, 1).density[Cell::Direction::NW] + latticeWork(y, 1).density[Cell::Direction::W] + latticeWork(y, 1).density[Cell::Direction::SW])) / inletDensity;
-							diff = 1. / 2. * (latticeWork(y, 1).density[Cell::Direction::N] - latticeWork(y, 1).density[Cell::Direction::S]);
+							speed = 1. - (latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::none)] + latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::N)] 
+									+ latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::S)] + 2.* (latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::NW)] 
+									+ latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::W)] + latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::SW)])) / inletDensity;
+							diff = 1. / 2. * (latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::N)] - latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::S)]);
 
-							latticeWork(y, 1).density[Cell::Direction::E] = latticeWork(y, 1).density[Cell::Direction::W] + 2. / 3. * inletDensity * speed;
-							latticeWork(y, 1).density[Cell::Direction::NE] = latticeWork(y, 1).density[Cell::Direction::SW] - diff + 1. / 6. * inletDensity * speed;
-							latticeWork(y, 1).density[Cell::Direction::SE] = latticeWork(y, 1).density[Cell::Direction::NW] + diff + 1. / 6. * inletDensity * speed;
+							latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::E)] = latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::W)] + 2. / 3. * inletDensity * speed;
+							latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::NE)] = latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::SW)] - diff + 1. / 6. * inletDensity * speed;
+							latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::SE)] = latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::NW)] + diff + 1. / 6. * inletDensity * speed;
 						}
 					}
 				}
@@ -231,26 +233,29 @@ namespace LatticeBoltzmann {
 					lastCol = LatticeColsMinusOne - 1;
 					if (outletOption) // speed specified
 					{
-						for (int y = (Periodic == boundaryConditions ? 0 : 1); y < (Periodic == boundaryConditions ? LatticeRows : LatticeRowsMinusOne); ++y)
+						for (int y = (BoundaryConditions::Periodic == boundaryConditions ? 0 : 1); y < (BoundaryConditions::Periodic == boundaryConditions ? LatticeRows : LatticeRowsMinusOne); ++y)
 						{
 							density = latticeWork(y, lastCol).Density();
-							diff = 1. / 2 * (latticeWork(y, lastCol).density[Cell::Direction::N] - latticeWork(y, lastCol).density[Cell::Direction::S]);
+							diff = 1. / 2 * (latticeWork(y, lastCol).density[static_cast<size_t>(Cell::Direction::N)] - latticeWork(y, lastCol).density[static_cast<size_t>(Cell::Direction::S)]);
 
-							latticeWork(y, lastCol).density[Cell::Direction::W] = latticeWork(y, lastCol).density[Cell::Direction::E] - 2. / 3. * density * outletSpeed;
-							latticeWork(y, lastCol).density[Cell::Direction::NW] = latticeWork(y, lastCol).density[Cell::Direction::SE] - diff - 1. / 6. * density * outletSpeed;
-							latticeWork(y, lastCol).density[Cell::Direction::SW] = latticeWork(y, lastCol).density[Cell::Direction::NE] + diff - 1. / 6. * density * outletSpeed;
+							latticeWork(y, lastCol).density[static_cast<size_t>(Cell::Direction::W)] = latticeWork(y, lastCol).density[static_cast<size_t>(Cell::Direction::E)] - 2. / 3. * density * outletSpeed;
+							latticeWork(y, lastCol).density[static_cast<size_t>(Cell::Direction::NW)] = latticeWork(y, lastCol).density[static_cast<size_t>(Cell::Direction::SE)] - diff - 1. / 6. * density * outletSpeed;
+							latticeWork(y, lastCol).density[static_cast<size_t>(Cell::Direction::SW)] = latticeWork(y, lastCol).density[static_cast<size_t>(Cell::Direction::NE)] + diff - 1. / 6. * density * outletSpeed;
 						}
 					}
 					else // density specified
 					{
-						for (int y = (Periodic == boundaryConditions ? 0 : 1); y < (Periodic == boundaryConditions ? LatticeRows : LatticeRowsMinusOne); ++y)
+						for (int y = (BoundaryConditions::Periodic == boundaryConditions ? 0 : 1); y < (BoundaryConditions::Periodic == boundaryConditions ? LatticeRows : LatticeRowsMinusOne); ++y)
 						{
-							speed = 1. - (latticeWork(y, lastCol).density[Cell::Direction::none] + latticeWork(y, lastCol).density[Cell::Direction::N] + latticeWork(y, lastCol).density[Cell::Direction::S] + 2.* (latticeWork(y, lastCol).density[Cell::Direction::NE] + latticeWork(y, lastCol).density[Cell::Direction::E] + latticeWork(y, lastCol).density[Cell::Direction::SE])) / outletDensity;
-							diff = 1. / 2. * (latticeWork(y, lastCol).density[Cell::Direction::N] - latticeWork(y, lastCol).density[Cell::Direction::S]);
+							speed = 1. - (latticeWork(y, lastCol).density[static_cast<size_t>(Cell::Direction::none)] + latticeWork(y, lastCol).density[static_cast<size_t>(Cell::Direction::N)] 
+									+ latticeWork(y, lastCol).density[static_cast<size_t>(Cell::Direction::S)] + 2.* (latticeWork(y, lastCol).density[static_cast<size_t>(Cell::Direction::NE)] 
+									+ latticeWork(y, lastCol).density[static_cast<size_t>(Cell::Direction::E)] + latticeWork(y, lastCol).density[static_cast<size_t>(Cell::Direction::SE)])) / outletDensity;
 
-							latticeWork(y, lastCol).density[Cell::Direction::W] = latticeWork(y, lastCol).density[Cell::Direction::E] + 2. / 3 * outletDensity * speed;
-							latticeWork(y, lastCol).density[Cell::Direction::NW] = latticeWork(y, lastCol).density[Cell::Direction::SE] - diff + 1. / 6. * outletDensity * speed;
-							latticeWork(y, lastCol).density[Cell::Direction::SW] = latticeWork(y, lastCol).density[Cell::Direction::NE] + diff + 1. / 6. * outletDensity * speed;
+							diff = 1. / 2. * (latticeWork(y, lastCol).density[static_cast<size_t>(Cell::Direction::N)] - latticeWork(y, lastCol).density[static_cast<size_t>(Cell::Direction::S)]);
+
+							latticeWork(y, lastCol).density[static_cast<size_t>(Cell::Direction::W)] = latticeWork(y, lastCol).density[static_cast<size_t>(Cell::Direction::E)] + 2. / 3 * outletDensity * speed;
+							latticeWork(y, lastCol).density[static_cast<size_t>(Cell::Direction::NW)] = latticeWork(y, lastCol).density[static_cast<size_t>(Cell::Direction::SE)] - diff + 1. / 6. * outletDensity * speed;
+							latticeWork(y, lastCol).density[static_cast<size_t>(Cell::Direction::SW)] = latticeWork(y, lastCol).density[static_cast<size_t>(Cell::Direction::NE)] + diff + 1. / 6. * outletDensity * speed;
 						}
 					}
 				}

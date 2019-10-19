@@ -5,7 +5,7 @@
 
 
 Options::Options()
-	: minSpeed(0), maxSpeed(0.25), minDensity(0.93), maxDensity(1.08), minVorticity(-0.1), maxVorticity(0.1), chartColors(ThreeColors), zoom(2),
+	: minSpeed(0), maxSpeed(0.25), minDensity(0.93), maxDensity(1.08), minVorticity(-0.1), maxVorticity(0.1), chartColors(ChartColors::ThreeColors), zoom(2),
 	resultsType(0), obstaclesColor(RGB(0, 0, 0)),
 	numThreads(8), refreshSteps(10), boundaryConditions(1), 
 	tau(0.6), accelX(0.015), useAccelX(0),

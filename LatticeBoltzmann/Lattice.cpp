@@ -4,7 +4,7 @@
 namespace LatticeBoltzmann {
 
 	Lattice::Lattice()
-		: resultsType(Density), boundaryConditions(BounceBack), simulate(true), refreshSteps(10),
+		: resultsType(ResultsType::Density), boundaryConditions(BoundaryConditions::BounceBack), simulate(true), refreshSteps(10),
 		accelX(0.015), 
 //		accelY(0),
 		useAccelX(0),
@@ -37,7 +37,7 @@ namespace LatticeBoltzmann {
 		for (int j = 0; j < lattice.cols(); ++j)
 			for (int i = 0; i < lattice.rows(); ++i)
 				if (latticeObstacles(i, j) ||
-					(Periodic != boundaryConditions && (i == 0 || i == lattice.rows() - 1)))
+					(BoundaryConditions::Periodic != boundaryConditions && (i == 0 || i == lattice.rows() - 1)))
 					lattice(i, j).density = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 				else lattice(i, j).Init();
 	}
@@ -92,7 +92,7 @@ namespace LatticeBoltzmann {
 		const double accelXtau = accelX * tau;
 		//const double accelYtau = accelY * tau;
 
-		const bool ShouldCollideAtUpDownBoundary = (Periodic == boundaryConditions);
+		const bool ShouldCollideAtUpDownBoundary = (BoundaryConditions::Periodic == boundaryConditions);
 
 		for (;;)
 		{
@@ -224,12 +224,12 @@ namespace LatticeBoltzmann {
 
 		switch (resultsType)
 		{
-		case Density:
+		case ResultsType::Density:
 			for (int j = 0; j < lattice.cols(); ++j)
 				for (int i = 0; i < lattice.rows(); ++i)
 					results(i, j) = lattice(i, j).Density();
 			break;
-		case Speed:
+		case ResultsType::Speed:
 			for (int j = 0; j < lattice.cols(); ++j)
 				for (int i = 0; i < lattice.rows(); ++i)
 				{
@@ -237,14 +237,14 @@ namespace LatticeBoltzmann {
 					results(i, j) = sqrt(res.first * res.first + res.second * res.second);
 				}
 			break;
-		case Vorticity:
+		case ResultsType::Vorticity:
 			for (int j = 0; j < lattice.cols(); ++j)
 				for (int i = 0; i < lattice.rows(); ++i)
 				{
 					auto v = lattice(i, j).Velocity();
 
-					auto vx = i < lattice.rows() - 1 ? lattice(i + 1, j).Velocity() : lattice(0, j).Velocity();
-					auto vy = j > 0 ? lattice(i, j - 1).Velocity() : (boundaryConditions == Periodic ? lattice(i, lattice.cols() - 1).Velocity() : std::make_pair<double, double>(0, 0));
+					auto vx = i < lattice.rows() - 1LL ? lattice(i + 1LL, j).Velocity() : lattice(0, j).Velocity();
+					auto vy = j > 0 ? lattice(i, j - 1LL).Velocity() : (boundaryConditions == BoundaryConditions::Periodic ? lattice(i, lattice.cols() - 1LL).Velocity() : std::make_pair<double, double>(0, 0));
 
 					results(i, j) = (vy.second - v.second) - (vx.first - v.first);
 				}

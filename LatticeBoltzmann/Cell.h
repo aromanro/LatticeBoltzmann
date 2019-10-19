@@ -20,7 +20,7 @@ namespace LatticeBoltzmann {
 
 		std::array<double, NumDir> density;
 
-		enum Direction
+		enum class Direction
 		{
 			none = 0,
 			N,
@@ -41,7 +41,7 @@ namespace LatticeBoltzmann {
 		{
 			// - for the y is because y coordinate is reversed, 0 is top
 			// alternatively, one could just change the signs in the ey array
-			return std::make_pair<int, int>(x + ex[direction], y - ey[direction]);
+			return std::make_pair<int, int>(x + ex[static_cast<size_t>(direction)], y - ey[static_cast<size_t>(direction)]);
 		}
 
 		inline static Direction Reverse(Direction dir)

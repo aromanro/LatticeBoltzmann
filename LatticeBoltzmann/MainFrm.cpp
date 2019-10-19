@@ -355,17 +355,18 @@ void CMainFrame::OnFileOpen()
 
 void CMainFrame::OnViewOptions()
 {
-	COptionsPropertySheet sheet(L"Options", this);
+	COptionsPropertySheet* sheet = new COptionsPropertySheet(L"Options", this);
 
 	CSimulationPropPage page1;
 	CInletOutletPropPage page2;
 	CComputationPropPage page3;
 	CDisplayPropPage page4;
 
-	sheet.AddPage(&page1);
-	sheet.AddPage(&page2);
-	sheet.AddPage(&page3);
-	sheet.AddPage(&page4);
+	sheet->AddPage(&page1);
+	sheet->AddPage(&page2);
+	sheet->AddPage(&page3);
+	sheet->AddPage(&page4);
 
-	sheet.DoModal();
+	sheet->DoModal();
+	delete sheet;
 }

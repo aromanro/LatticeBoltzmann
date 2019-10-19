@@ -31,6 +31,7 @@ END_MESSAGE_MAP()
 // CLatticeBoltzmannApp construction
 
 CLatticeBoltzmannApp::CLatticeBoltzmannApp()
+	: m_nAppLook(0)
 {
 	m_bHiColorIcons = TRUE;
 

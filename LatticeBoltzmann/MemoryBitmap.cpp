@@ -76,7 +76,7 @@ void MemoryBitmap::SetSize(int width, int height)
 		m_width = width;
 		m_height = height;
 
-		data = new unsigned char[GetStrideLength() * height];
+		data = new unsigned char[static_cast<size_t>(GetStrideLength()) * height];
 	}
 }
 
@@ -112,7 +112,7 @@ void MemoryBitmap::SetMatrix(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::
 			const int line = (m_height - i - 1) * stride;
 			const int pos = line + 3 * j;
 
-			const COLORREF color = latticeObstacles(i, j) ? theApp.options.obstaclesColor : ConvertToColor(results(i, j), theApp.options.chartColors, minVal, maxVal);
+			const COLORREF color = latticeObstacles(i, j) ? theApp.options.obstaclesColor : ConvertToColor(results(i, j), static_cast<int>(theApp.options.chartColors), minVal, maxVal);
 
 			data[pos] = GetBValue(color);
 			data[pos + 1] = GetGValue(color);

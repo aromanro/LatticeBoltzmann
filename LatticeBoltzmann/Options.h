@@ -16,7 +16,7 @@ public:
 	double minVorticity;
 	double maxVorticity;
 
-	enum ChartColors {
+	enum class ChartColors {
 		TwoColors = 0,
 		ThreeColors
 	};
