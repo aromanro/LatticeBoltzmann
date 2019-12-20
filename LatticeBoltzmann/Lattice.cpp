@@ -190,7 +190,7 @@ namespace LatticeBoltzmann {
 		wakeup.resize(numThreads);
 		for (unsigned int i = 0; i < numThreads; ++i) wakeup[i] = false;
 
-		const int workStride = static_cast<int>(lattice.cols() / numThreads);
+		const int workStride = static_cast<int>(ceil(static_cast<double>(lattice.cols()) / numThreads));
 		for (int t = 0, strideStart = 0; t < (int)numThreads; ++t)
 		{
 			const int endStride = strideStart + workStride;
