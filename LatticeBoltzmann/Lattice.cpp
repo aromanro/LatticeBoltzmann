@@ -193,7 +193,9 @@ namespace LatticeBoltzmann {
 		const int workStride = static_cast<int>(ceil(static_cast<double>(lattice.cols()) / numThreads));
 		for (int t = 0, strideStart = 0; t < (int)numThreads; ++t)
 		{
-			const int endStride = strideStart + workStride;
+			int endStride = strideStart + workStride;
+			if (endStride > lattice.cols()) endStride = static_cast<int>(lattice.cols());
+
 			theThreads[t] = std::thread(&Lattice::CollideAndStream, this, t, &latticeWork, strideStart, t == static_cast<int>(numThreads - 1) ? static_cast<int>(lattice.cols()) : endStride);
 			strideStart = endStride;
 		}
