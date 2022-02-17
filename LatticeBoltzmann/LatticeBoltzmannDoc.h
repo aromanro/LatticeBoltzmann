@@ -24,10 +24,7 @@ public:
 	std::thread theThread;
 
 // Operations
-public:
-
 // Overrides
-public:
 	virtual BOOL OnNewDocument();
 	virtual void Serialize(CArchive& ar);
 #ifdef SHARED_HANDLERS
@@ -43,8 +40,6 @@ public:
 	virtual void Dump(CDumpContext& dc) const;
 #endif
 
-protected:
-
 // Generated message map functions
 protected:
 	DECLARE_MESSAGE_MAP()
@@ -53,6 +48,7 @@ protected:
 	// Helper function that sets search content for a Search Handler
 	void SetSearchContent(const CString& value);
 #endif // SHARED_HANDLERS
+
 public:
 	void SetImageAndStartComputing(const CImage& image);
 	void StopSimulation();

@@ -95,7 +95,7 @@ namespace LatticeBoltzmann {
 
 
 		// this and Equilibrium take up most of the cpu time so they would benefit a lot from optimizations
-		void CollideAndStreamCellSlow(int x, int y, bool ShouldCollide, bool xInsideBoundaryOrUseAccel, bool useAccelX, int LatticeRowsMinusOne, int LatticeRows, int LatticeColsMinusOne, int LatticeCols, double accelXtau, /*double accelYtau,*/ double tau, CellLattice& latticeWork)
+		inline void CollideAndStreamCellSlow(int x, int y, bool ShouldCollide, bool xInsideBoundaryOrUseAccel, bool useAccelX, int LatticeRowsMinusOne, int LatticeRows, int LatticeColsMinusOne, int LatticeCols, double accelXtau, /*double accelYtau,*/ double tau, CellLattice& latticeWork)
 		{
 			// collision
 			if (ShouldCollide && !latticeObstacles(y, x) && xInsideBoundaryOrUseAccel)
@@ -120,32 +120,8 @@ namespace LatticeBoltzmann {
 				// ***************************************************************************************************************
 				// left & right 
 
+				ApplyBoundaryConditions(pos, direction, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols);
 
-				if (useAccelX) //periodic boundary with usage of an accelerating force
-				{
-					if (pos.first < 0) pos.first = LatticeColsMinusOne;
-					else if (pos.first >= LatticeCols) pos.first = 0;
-				}
-				else
-				{
-					// bounce them back
-					if ((pos.first == 0 || pos.first == LatticeColsMinusOne) && !(pos.second == 0 || pos.second == LatticeRowsMinusOne))
-						direction = Cell::Reverse(direction);
-				}
-
-				// ***************************************************************************************************************
-				// top & bottom, depends on boundaryConditions
-
-				if (BoundaryConditions::Periodic == boundaryConditions)
-				{
-					if (pos.second < 0) pos.second = LatticeRowsMinusOne;
-					else if (pos.second >= LatticeRows) pos.second = 0;
-				}
-				else if (pos.second <= 0 || pos.second >= LatticeRowsMinusOne)
-				{
-					if (BoundaryConditions::BounceBack == boundaryConditions) direction = Cell::Reverse(direction);
-					else direction = Cell::ReflectVert(direction);
-				}
 
 				// ***************************************************************************************************************
 
@@ -157,11 +133,38 @@ namespace LatticeBoltzmann {
 					// x, y = old position, pos = new position, dir - original direction, direction - new direction
 					latticeWork(pos.second, pos.first).density[static_cast<size_t>(direction)] = lattice(y, x).density[dir];
 				}
-
 			}
 		}
 
 
+		inline void ApplyBoundaryConditions(std::pair<int, int>& pos, Cell::Direction& direction, bool useAccelX, int LatticeRowsMinusOne, int LatticeRows, int LatticeColsMinusOne, int LatticeCols)
+		{
+			if (useAccelX) //periodic boundary with usage of an accelerating force
+			{
+				if (pos.first < 0) pos.first = LatticeColsMinusOne;
+				else if (pos.first >= LatticeCols) pos.first = 0;
+			}
+			else
+			{
+				// bounce them back
+				if ((pos.first == 0 || pos.first == LatticeColsMinusOne) && !(pos.second == 0 || pos.second == LatticeRowsMinusOne))
+					direction = Cell::Reverse(direction);
+			}
+
+			// ***************************************************************************************************************
+			// top & bottom, depends on boundaryConditions
+
+			if (BoundaryConditions::Periodic == boundaryConditions)
+			{
+				if (pos.second < 0) pos.second = LatticeRowsMinusOne;
+				else if (pos.second >= LatticeRows) pos.second = 0;
+			}
+			else if (pos.second <= 0 || pos.second >= LatticeRowsMinusOne)
+			{
+				if (BoundaryConditions::BounceBack == boundaryConditions) direction = Cell::Reverse(direction);
+				else direction = Cell::ReflectVert(direction);
+			}
+		}
 
 		void CollideAndStreamCellFast(int x, int y, double tau, CellLattice& latticeWork)
 		{
@@ -260,9 +263,7 @@ namespace LatticeBoltzmann {
 					}
 				}
 			}
-
 		}
-
 	};
 
 }

@@ -13,13 +13,11 @@ IMPLEMENT_DYNAMIC(COptionsPropertySheet, CMFCPropertySheet)
 COptionsPropertySheet::COptionsPropertySheet(UINT nIDCaption, CWnd* pParentWnd, UINT iSelectPage)
 	:CMFCPropertySheet(nIDCaption, pParentWnd, iSelectPage), hIcon(0)
 {
-
 }
 
 COptionsPropertySheet::COptionsPropertySheet(LPCTSTR pszCaption, CWnd* pParentWnd, UINT iSelectPage)
 	:CMFCPropertySheet(pszCaption, pParentWnd, iSelectPage), hIcon(0)
 {
-
 }
 
 COptionsPropertySheet::~COptionsPropertySheet()
@@ -32,11 +30,7 @@ BEGIN_MESSAGE_MAP(COptionsPropertySheet, CMFCPropertySheet)
 END_MESSAGE_MAP()
 
 
-
 // COptionsPropertySheet message handlers
-
-
-
 
 BOOL COptionsPropertySheet::OnInitDialog()
 {

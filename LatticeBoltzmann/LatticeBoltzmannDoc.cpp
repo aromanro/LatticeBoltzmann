@@ -31,7 +31,6 @@ END_MESSAGE_MAP()
 CLatticeBoltzmannDoc::CLatticeBoltzmannDoc()
 {
 	// TODO: add one-time construction code here
-
 }
 
 CLatticeBoltzmannDoc::~CLatticeBoltzmannDoc()

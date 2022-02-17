@@ -18,10 +18,7 @@ public:
 	CLatticeBoltzmannDoc* GetDocument() const;
 
 // Operations
-public:
-
 // Overrides
-public:
 	virtual void OnDraw(CDC* pDC);  // overridden to draw this view
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 protected:

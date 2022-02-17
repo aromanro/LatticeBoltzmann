@@ -246,7 +246,7 @@ namespace LatticeBoltzmann {
 					auto v = lattice(i, j).Velocity();
 
 					auto vx = i < lattice.rows() - 1LL ? lattice(i + 1LL, j).Velocity() : lattice(0, j).Velocity();
-					auto vy = j > 0 ? lattice(i, j - 1LL).Velocity() : (boundaryConditions == BoundaryConditions::Periodic ? lattice(i, lattice.cols() - 1LL).Velocity() : std::make_pair<double, double>(0, 0));
+					auto vy = j > 0 ? lattice(i, j - 1LL).Velocity() : (boundaryConditions == BoundaryConditions::Periodic ? lattice(i, lattice.cols() - 1LL).Velocity() : std::make_pair(0., 0.));
 
 					results(i, j) = (vy.second - v.second) - (vx.first - v.first);
 				}

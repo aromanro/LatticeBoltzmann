@@ -41,7 +41,7 @@ namespace LatticeBoltzmann {
 		{
 			// - for the y is because y coordinate is reversed, 0 is top
 			// alternatively, one could just change the signs in the ey array
-			return std::make_pair<int, int>(x + ex[static_cast<size_t>(direction)], y - ey[static_cast<size_t>(direction)]);
+			return std::make_pair(x + ex[static_cast<size_t>(direction)], y - ey[static_cast<size_t>(direction)]);
 		}
 
 		inline static Direction Reverse(Direction dir)
@@ -119,9 +119,9 @@ namespace LatticeBoltzmann {
 				vy += ey[i] * density[i];
 			}
 
-			if (tDensity < 1E-14) return std::make_pair<double, double>(0, 0);
+			if (tDensity < 1E-14) return std::make_pair(0., 0.);
 
-			return std::make_pair<double, double>(vx / tDensity, vy / tDensity);
+			return std::make_pair(vx / tDensity, vy / tDensity);
 		}
 
 		// this can be optimized, I won't do that to have the code easy to understand
@@ -221,7 +221,6 @@ namespace LatticeBoltzmann {
 			for (unsigned char i = 0; i < NumDir; ++i)
 				density[i] -= (density[i] - equilibriumDistribution[i]) / tau;
 		}
-
 	};
 
 }

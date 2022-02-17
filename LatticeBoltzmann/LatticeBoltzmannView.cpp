@@ -38,7 +38,6 @@ CLatticeBoltzmannView::CLatticeBoltzmannView()
 	: timer(NULL)
 {
 	// TODO: add construction code here
-
 }
 
 CLatticeBoltzmannView::~CLatticeBoltzmannView()
