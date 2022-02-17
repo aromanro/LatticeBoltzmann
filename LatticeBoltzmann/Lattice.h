@@ -154,6 +154,11 @@ namespace LatticeBoltzmann {
 			// ***************************************************************************************************************
 			// top & bottom, depends on boundaryConditions
 
+			ApplyBoundaryConditionsTopBottom(pos, direction, LatticeRowsMinusOne, LatticeRows);
+		}
+
+		inline void ApplyBoundaryConditionsTopBottom(std::pair<int, int>& pos, Cell::Direction& direction, int LatticeRowsMinusOne, int LatticeRows)
+		{
 			if (BoundaryConditions::Periodic == boundaryConditions)
 			{
 				if (pos.second < 0) pos.second = LatticeRowsMinusOne;
