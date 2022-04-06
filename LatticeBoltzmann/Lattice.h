@@ -95,11 +95,11 @@ namespace LatticeBoltzmann {
 
 
 		// this and Equilibrium take up most of the cpu time so they would benefit a lot from optimizations
-		inline void CollideAndStreamCellSlow(int x, int y, bool ShouldCollide, bool xInsideBoundaryOrUseAccel, bool useAccelX, int LatticeRowsMinusOne, int LatticeRows, int LatticeColsMinusOne, int LatticeCols, double accelXtau, /*double accelYtau,*/ double tau, CellLattice& latticeWork)
+		inline void CollideAndStreamCellSlow(int x, int y, bool ShouldCollide, bool xInsideBoundaryOrUseAccel, bool useAccelXp, int LatticeRowsMinusOne, int LatticeRows, int LatticeColsMinusOne, int LatticeCols, double accelXtau, /*double accelYtau,*/ double taup, CellLattice& latticeWork)
 		{
 			// collision
 			if (ShouldCollide && !latticeObstacles(y, x) && xInsideBoundaryOrUseAccel)
-				lattice(y, x).Collision(x == 0 && useAccelX ? accelXtau : 0, /*accelYtau,*/ tau);
+				lattice(y, x).Collision(x == 0 && useAccelXp ? accelXtau : 0, /*accelYtau,*/ taup);
 
 			// stream
 
@@ -120,7 +120,7 @@ namespace LatticeBoltzmann {
 				// ***************************************************************************************************************
 				// left & right 
 
-				ApplyBoundaryConditions(pos, direction, useAccelX, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols);
+				ApplyBoundaryConditions(pos, direction, useAccelXp, LatticeRowsMinusOne, LatticeRows, LatticeColsMinusOne, LatticeCols);
 
 
 				// ***************************************************************************************************************
@@ -137,9 +137,9 @@ namespace LatticeBoltzmann {
 		}
 
 
-		inline void ApplyBoundaryConditions(std::pair<int, int>& pos, Cell::Direction& direction, bool useAccelX, int LatticeRowsMinusOne, int LatticeRows, int LatticeColsMinusOne, int LatticeCols)
+		inline void ApplyBoundaryConditions(std::pair<int, int>& pos, Cell::Direction& direction, bool useAccelXp, int LatticeRowsMinusOne, int LatticeRows, int LatticeColsMinusOne, int LatticeCols)
 		{
-			if (useAccelX) //periodic boundary with usage of an accelerating force
+			if (useAccelXp) //periodic boundary with usage of an accelerating force
 			{
 				if (pos.first < 0) pos.first = LatticeColsMinusOne;
 				else if (pos.first >= LatticeCols) pos.first = 0;
@@ -171,12 +171,12 @@ namespace LatticeBoltzmann {
 			}
 		}
 
-		void CollideAndStreamCellFast(int x, int y, double tau, CellLattice& latticeWork)
+		void CollideAndStreamCellFast(int x, int y, double taup, CellLattice& latticeWork)
 		{
 			_declspec(align(16)) Cell::Direction direction;			
 			// collision
 			if (!latticeObstacles(y, x))
-				lattice(y, x).Collision(0, /*accelYtau,*/ tau);
+				lattice(y, x).Collision(0, /*accelYtau,*/ taup);
 
 			for (unsigned char dir = 0; dir < NumDir; ++dir)
 			{
