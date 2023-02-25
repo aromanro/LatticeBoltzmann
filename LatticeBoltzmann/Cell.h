@@ -12,7 +12,6 @@ namespace LatticeBoltzmann {
 	public:
 		Cell();
 
-
 		static std::array<signed char, NumDir> ex;
 		static std::array<signed char, NumDir> ey;
 
@@ -20,7 +19,7 @@ namespace LatticeBoltzmann {
 
 		std::array<double, NumDir> density;
 
-		enum class Direction
+		enum class Direction : unsigned char
 		{
 			none = 0,
 			N,
@@ -33,9 +32,7 @@ namespace LatticeBoltzmann {
 			NW
 		};
 
-
 		void Init();
-
 
 		inline static std::pair<int, int> GetNextPosition(Direction direction, int x, int y)
 		{
@@ -200,15 +197,10 @@ namespace LatticeBoltzmann {
 			const double coeff2term42PlusonePluscoeff3v2 = coeff2term42 + onePluscoeff3v2;
 			
 			result[4] = coeff[4] * totalDensity * (coeff1term4 + coeff2term42PlusonePluscoeff3v2); // 1, -1 - vx, vy
-
 			result[5] = coeff[5] * totalDensity * (-coeff1vy + coeff2vy2PlusonePluscoeff3v2); // 0, -1 - vx, vy
-
 			result[6] = coeff[6] * totalDensity * (-coeff1term2 + coeff2term22PlusonePluscoeff3v2); // -1, -1 - vx, vy
-
 			result[7] = coeff[7] * totalDensity * (-coeff1vx + coeff2vx2PlusonePluscoeff3v2); // -1, 0 - vx, vy
-
 			result[8] = coeff[8] * totalDensity * (-coeff1term4 + coeff2term42PlusonePluscoeff3v2); // -1, 1 - vx, vy
-
 
 			return std::move(result);
 		}

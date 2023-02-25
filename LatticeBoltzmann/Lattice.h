@@ -20,15 +20,14 @@ namespace LatticeBoltzmann {
 		Lattice();
 		~Lattice();
 
-
-		enum class BoundaryConditions
+		enum class BoundaryConditions : unsigned char
 		{
 			Periodic = 0,
 			BounceBack,
 			Slippery
 		};
 
-		enum class ResultsType
+		enum class ResultsType : unsigned char
 		{
 			Density = 0,
 			Speed,
