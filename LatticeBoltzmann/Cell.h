@@ -94,20 +94,22 @@ namespace LatticeBoltzmann {
 
 		inline double Density() const
 		{
+			/*
 			double tDensity = 0;
-
 			for (unsigned char i = 0; i < NumDir; ++i)
 				tDensity += density[i];
-
 			return tDensity;
+			*/
+			// unrolled
+			return density[0] + density[1] + density[2] + density[3] + density[4] + density[5] + density[6] + density[7] + density[8];
 		}
 
 		inline std::pair<double, double> Velocity() const
 		{
+			/*
 			double tDensity = 0;
 			double vx = 0;
 			double vy = 0;
-
 
 			for (unsigned char i = 0; i < 9; ++i)
 			{
@@ -115,10 +117,17 @@ namespace LatticeBoltzmann {
 				vx += ex[i] * density[i];
 				vy += ey[i] * density[i];
 			}
+			*/
+			// unrolled
+			const double tDensity = density[0] + density[1] + density[2] + density[3] + density[4] + density[5] + density[6] + density[7] + density[8];
+			const double vx = ex[0] * density[0] + ex[1] * density[1] + ex[2] * density[2] + ex[3] * density[3] + ex[4] * density[4] + ex[5] * density[5] + ex[6] * density[6] + ex[7] * density[7] + ex[8] * density[8];
+			const double vy = ey[0] * density[0] + ey[1] * density[1] + ey[2] * density[2] + ey[3] * density[3] + ey[4] * density[4] + ey[5] * density[5] + ey[6] * density[6] + ey[7] * density[7] + ey[8] * density[8];
 
 			if (tDensity < 1E-14) return std::make_pair(0., 0.);
 
-			return std::make_pair(vx / tDensity, vy / tDensity);
+			const double invDens = 1. / tDensity;
+
+			return std::make_pair(vx * invDens, vy * invDens);
 		}
 
 		// this can be optimized, I won't do that to have the code easy to understand
@@ -127,6 +136,7 @@ namespace LatticeBoltzmann {
 		{
 			std::array<double, NumDir> result;
 
+			/*
 			double totalDensity = density[0];
 			double vx = 0;
 			double vy = 0;
@@ -137,9 +147,15 @@ namespace LatticeBoltzmann {
 				vx += ex[i] * density[i];
 				vy += ey[i] * density[i];
 			}
+			*/
 
-			vx /= totalDensity;
-			vy /= totalDensity;
+			const double totalDensity = density[0] + density[1] + density[2] + density[3] + density[4] + density[5] + density[6] + density[7] + density[8];
+			double vx = ex[0] * density[0] + ex[1] * density[1] + ex[2] * density[2] + ex[3] * density[3] + ex[4] * density[4] + ex[5] * density[5] + ex[6] * density[6] + ex[7] * density[7] + ex[8] * density[8];
+			double vy = ey[0] * density[0] + ey[1] * density[1] + ey[2] * density[2] + ey[3] * density[3] + ey[4] * density[4] + ey[5] * density[5] + ey[6] * density[6] + ey[7] * density[7] + ey[8] * density[8];
+			const double invDens = 1. / totalDensity;
+
+			vx *= invDens;
+			vy *= invDens;
 
 			vx += accelXtau;
 			//vy += accelYtau;
@@ -210,8 +226,22 @@ namespace LatticeBoltzmann {
 		{
 			const std::array<double, NumDir> equilibriumDistribution = Equilibrium(accelXtau/*, accelYtau*/);
 
+			/*
 			for (unsigned char i = 0; i < NumDir; ++i)
 				density[i] -= (density[i] - equilibriumDistribution[i]) / tau;
+			*/
+			// unrolling
+			const double invTau = 1. / tau;
+
+			density[0] -= (density[0] - equilibriumDistribution[0]) * invTau;
+			density[1] -= (density[1] - equilibriumDistribution[1]) * invTau;
+			density[2] -= (density[2] - equilibriumDistribution[2]) * invTau;
+			density[3] -= (density[3] - equilibriumDistribution[3]) * invTau;
+			density[4] -= (density[4] - equilibriumDistribution[4]) * invTau;
+			density[5] -= (density[5] - equilibriumDistribution[5]) * invTau;
+			density[6] -= (density[6] - equilibriumDistribution[6]) * invTau;
+			density[7] -= (density[7] - equilibriumDistribution[7]) * invTau;
+			density[8] -= (density[8] - equilibriumDistribution[8]) * invTau;
 		}
 	};
 

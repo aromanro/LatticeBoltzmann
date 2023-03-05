@@ -213,7 +213,7 @@ namespace LatticeBoltzmann {
 						for (int y = (BoundaryConditions::Periodic == boundaryConditions ? 0 : 1); y < (BoundaryConditions::Periodic == boundaryConditions ? LatticeRows : LatticeRowsMinusOne); ++y)
 						{
 							density = latticeWork(y, 1).Density();
-							diff = 1. / 2 * (latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::N)] - latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::S)]);
+							diff = 0.5 * (latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::N)] - latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::S)]);
 
 							latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::E)] = latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::W)] + 2. / 3 * density * inletSpeed;
 							latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::NE)] = latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::SW)] - diff + 1. / 6 * density * inletSpeed;
@@ -227,7 +227,7 @@ namespace LatticeBoltzmann {
 							speed = 1. - (latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::none)] + latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::N)] 
 									+ latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::S)] + 2.* (latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::NW)] 
 									+ latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::W)] + latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::SW)])) / inletDensity;
-							diff = 1. / 2. * (latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::N)] - latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::S)]);
+							diff = 0.5 * (latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::N)] - latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::S)]);
 
 							latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::E)] = latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::W)] + 2. / 3. * inletDensity * speed;
 							latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::NE)] = latticeWork(y, 1).density[static_cast<size_t>(Cell::Direction::SW)] - diff + 1. / 6. * inletDensity * speed;
