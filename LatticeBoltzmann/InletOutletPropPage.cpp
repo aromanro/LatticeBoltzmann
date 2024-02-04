@@ -19,16 +19,12 @@ IMPLEMENT_DYNAMIC(CInletOutletPropPage, CMFCPropertyPage)
 CInletOutletPropPage::CInletOutletPropPage()
 	: CMFCPropertyPage(IDD_PROPPAGE_INLETOUTLET)
 {
-	inletOption = theApp.options.inletOption;
-	outletOption = theApp.options.outletOption;
-	inletDensity = theApp.options.inletDensity;
-	outletDensity = theApp.options.outletDensity;
-	inletSpeed = theApp.options.inletSpeed;
-	outletSpeed = theApp.options.outletSpeed;
-}
-
-CInletOutletPropPage::~CInletOutletPropPage()
-{
+	inletOption = theApp.GetOptions().inletOption;
+	outletOption = theApp.GetOptions().outletOption;
+	inletDensity = theApp.GetOptions().inletDensity;
+	outletDensity = theApp.GetOptions().outletDensity;
+	inletSpeed = theApp.GetOptions().inletSpeed;
+	outletSpeed = theApp.GetOptions().outletSpeed;
 }
 
 void CInletOutletPropPage::DoDataExchange(CDataExchange* pDX)
@@ -67,19 +63,19 @@ END_MESSAGE_MAP()
 
 void CInletOutletPropPage::ApplyValues()
 {
-	theApp.options.inletOption = inletOption;
-	theApp.options.outletOption = outletOption;
-	theApp.options.inletDensity = inletDensity;
-	theApp.options.outletDensity = outletDensity;
+	theApp.GetOptions().inletOption = inletOption;
+	theApp.GetOptions().outletOption = outletOption;
+	theApp.GetOptions().inletDensity = inletDensity;
+	theApp.GetOptions().outletDensity = outletDensity;
 
 	// a safety check, this won't prevent entering unreasonable values
 	if ((inletSpeed > 0 && outletSpeed < 0) || (inletSpeed < 0 && outletSpeed > 0))
 		outletSpeed *= -1;
 
-	theApp.options.inletSpeed = inletSpeed;
-	theApp.options.outletSpeed = outletSpeed;
+	theApp.GetOptions().inletSpeed = inletSpeed;
+	theApp.GetOptions().outletSpeed = outletSpeed;
 
-	theApp.options.Save();
+	theApp.GetOptions().Save();
 }
 
 

@@ -20,23 +20,19 @@ IMPLEMENT_DYNAMIC(CDisplayPropPage, CMFCPropertyPage)
 CDisplayPropPage::CDisplayPropPage()
 	: CMFCPropertyPage(IDD_PROPPAGE_DISPLAY)
 {
-	minSpeed = theApp.options.minSpeed;
-	maxSpeed = theApp.options.maxSpeed;
+	minSpeed = theApp.GetOptions().minSpeed;
+	maxSpeed = theApp.GetOptions().maxSpeed;
 
-	minDensity = theApp.options.minDensity;
-	maxDensity = theApp.options.maxDensity;
+	minDensity = theApp.GetOptions().minDensity;
+	maxDensity = theApp.GetOptions().maxDensity;
 
-	minVorticity = theApp.options.minVorticity;
-	maxVorticity = theApp.options.maxVorticity;
+	minVorticity = theApp.GetOptions().minVorticity;
+	maxVorticity = theApp.GetOptions().maxVorticity;
 
-	chartColors = static_cast<int>(theApp.options.chartColors);
-	resultsType = theApp.options.resultsType;
+	chartColors = static_cast<int>(theApp.GetOptions().chartColors);
+	resultsType = theApp.GetOptions().resultsType;
 
-	zoom = (theApp.options.zoom == 1 ? 0 : 1);
-}
-
-CDisplayPropPage::~CDisplayPropPage()
-{
+	zoom = (theApp.GetOptions().zoom == 1 ? 0 : 1);
 }
 
 void CDisplayPropPage::DoDataExchange(CDataExchange* pDX)
@@ -109,7 +105,7 @@ BOOL CDisplayPropPage::OnInitDialog()
 	maxVorticityEdit.allowNegative = true;
 
 	obstaclesColorButton.EnableOtherButton(_T("More Colors..."));
-	obstaclesColorButton.SetColor(theApp.options.obstaclesColor);
+	obstaclesColorButton.SetColor(theApp.GetOptions().obstaclesColor);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // EXCEPTION: OCX Property Pages should return FALSE
@@ -118,23 +114,23 @@ BOOL CDisplayPropPage::OnInitDialog()
 
 void CDisplayPropPage::ApplyValues()
 {
-	theApp.options.minSpeed = minSpeed;
-	theApp.options.maxSpeed = maxSpeed;
+	theApp.GetOptions().minSpeed = minSpeed;
+	theApp.GetOptions().maxSpeed = maxSpeed;
 
-	theApp.options.minDensity = minDensity;
-	theApp.options.maxDensity = maxDensity;
+	theApp.GetOptions().minDensity = minDensity;
+	theApp.GetOptions().maxDensity = maxDensity;
 
-	theApp.options.minVorticity = minVorticity;
-	theApp.options.maxVorticity = maxVorticity;
+	theApp.GetOptions().minVorticity = minVorticity;
+	theApp.GetOptions().maxVorticity = maxVorticity;
 
-	theApp.options.obstaclesColor = obstaclesColorButton.GetColor();
+	theApp.GetOptions().obstaclesColor = obstaclesColorButton.GetColor();
 
-	theApp.options.chartColors = (Options::ChartColors)chartColors;
-	theApp.options.resultsType = resultsType;
+	theApp.GetOptions().chartColors = (Options::ChartColors)chartColors;
+	theApp.GetOptions().resultsType = resultsType;
 
-	theApp.options.zoom = (zoom == 1 ? 2 : 1);
+	theApp.GetOptions().zoom = (zoom == 1 ? 2 : 1);
 
-	theApp.options.Save();
+	theApp.GetOptions().Save();
 
 	CLatticeBoltzmannDoc* doc = dynamic_cast<CLatticeBoltzmannDoc*>(dynamic_cast<CMainFrame*>(theApp.m_pMainWnd)->GetActiveDocument());
 	if (doc)

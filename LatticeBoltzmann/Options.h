@@ -3,7 +3,6 @@ class Options
 {
 public:
 	Options();
-	~Options();
 
 	// display
 
@@ -50,10 +49,10 @@ public:
 	double outletDensity;
 	double outletSpeed;
 
-
 	void Load();
 	void Save();
-protected:
+
+private:
 	static double GetDouble(LPCTSTR param, double defval);
 	static COLORREF GetColor(LPCTSTR param, COLORREF defval = RGB(0,0,0));
 };

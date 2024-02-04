@@ -10,14 +10,12 @@ namespace LatticeBoltzmann {
 	class Cell
 	{
 	public:
-		Cell();
-
 		static std::array<signed char, NumDir> ex;
 		static std::array<signed char, NumDir> ey;
 
 		static std::array<double, NumDir> coeff;
 
-		std::array<double, NumDir> density;
+		std::array<double, NumDir> density{ {0, 0, 0, 0, 0, 0, 0, 0, 0} };
 
 		enum class Direction : unsigned char
 		{

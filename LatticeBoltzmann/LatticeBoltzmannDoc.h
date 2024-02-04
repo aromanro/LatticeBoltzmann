@@ -17,41 +17,38 @@ protected: // create from serialization only
 	CLatticeBoltzmannDoc();
 	DECLARE_DYNCREATE(CLatticeBoltzmannDoc)
 
-// Attributes
 public:
+// Attributes
 	LatticeBoltzmann::Lattice lattice;
 
 	std::thread theThread;
 
 // Operations
-// Overrides
-	virtual BOOL OnNewDocument();
-	virtual void Serialize(CArchive& ar);
-#ifdef SHARED_HANDLERS
-	virtual void InitializeSearchContent();
-	virtual void OnDrawThumbnail(CDC& dc, LPRECT lprcBounds);
-#endif // SHARED_HANDLERS
+	void SetImageAndStartComputing(const CImage& image);
+	void StopSimulation();
+	CLatticeBoltzmannView* GetMainView();
+	void OnCloseDocument() override;
 
 // Implementation
-public:
-	virtual ~CLatticeBoltzmannDoc();
-#ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
-#endif
+	~CLatticeBoltzmannDoc() override;
 
 // Generated message map functions
-protected:
+private:
+	// Overrides
+	BOOL OnNewDocument() override;
+	void Serialize(CArchive& ar) override;
+#ifdef SHARED_HANDLERS
+	void InitializeSearchContent() override;
+	void OnDrawThumbnail(CDC& dc, LPRECT lprcBounds) override;
+#endif // SHARED_HANDLERS
+#ifdef _DEBUG
+	void AssertValid() const override;
+	void Dump(CDumpContext& dc) const override;
+#endif
 	DECLARE_MESSAGE_MAP()
 
 #ifdef SHARED_HANDLERS
 	// Helper function that sets search content for a Search Handler
 	void SetSearchContent(const CString& value);
 #endif // SHARED_HANDLERS
-
-public:
-	void SetImageAndStartComputing(const CImage& image);
-	void StopSimulation();
-	CLatticeBoltzmannView* GetMainView();
-	virtual void OnCloseDocument();
 };

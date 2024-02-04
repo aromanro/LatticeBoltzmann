@@ -108,9 +108,9 @@ void CLatticeBoltzmannDoc::SetSearchContent(const CString& value)
 	}
 	else
 	{
-		CMFCFilterChunkValueImpl *pChunk = NULL;
+		CMFCFilterChunkValueImpl *pChunk = nullptr;
 		ATLTRY(pChunk = new CMFCFilterChunkValueImpl);
-		if (pChunk != NULL)
+		if (pChunk != nullptr)
 		{
 			pChunk->SetTextValue(PKEY_Search_Contents, value, CHUNK_TEXT);
 			SetChunkValue(pChunk);
@@ -156,22 +156,22 @@ void CLatticeBoltzmannDoc::SetImageAndStartComputing(const CImage& image)
 		}
 
 	// set the other parameters from options
-	lattice.numThreads = std::min<unsigned int>(theApp.options.numThreads, static_cast<unsigned int>(image.GetWidth()/4)); // at least 4 columns / thread, no matter what
-	lattice.refreshSteps = theApp.options.refreshSteps;
+	lattice.numThreads = std::min<unsigned int>(theApp.GetOptions().numThreads, static_cast<unsigned int>(image.GetWidth()/4)); // at least 4 columns / thread, no matter what
+	lattice.refreshSteps = theApp.GetOptions().refreshSteps;
 
-	lattice.resultsType = static_cast<LatticeBoltzmann::Lattice::ResultsType>(theApp.options.resultsType);
-	lattice.boundaryConditions = static_cast<LatticeBoltzmann::Lattice::BoundaryConditions>(theApp.options.boundaryConditions);
-	lattice.accelX = theApp.options.accelX;
+	lattice.resultsType = static_cast<LatticeBoltzmann::Lattice::ResultsType>(theApp.GetOptions().resultsType);
+	lattice.boundaryConditions = static_cast<LatticeBoltzmann::Lattice::BoundaryConditions>(theApp.GetOptions().boundaryConditions);
+	lattice.accelX = theApp.GetOptions().accelX;
 
-	lattice.useAccelX = theApp.options.useAccelX;
-	lattice.inletOption = theApp.options.inletOption;
-	lattice.outletOption = theApp.options.outletOption;
-	lattice.inletDensity = theApp.options.inletDensity;
-	lattice.outletDensity = theApp.options.outletDensity;
-	lattice.inletSpeed = theApp.options.inletSpeed;
-	lattice.outletSpeed = theApp.options.outletSpeed;
+	lattice.useAccelX = theApp.GetOptions().useAccelX;
+	lattice.inletOption = theApp.GetOptions().inletOption;
+	lattice.outletOption = theApp.GetOptions().outletOption;
+	lattice.inletDensity = theApp.GetOptions().inletDensity;
+	lattice.outletDensity = theApp.GetOptions().outletDensity;
+	lattice.inletSpeed = theApp.GetOptions().inletSpeed;
+	lattice.outletSpeed = theApp.GetOptions().outletSpeed;
 
-	lattice.tau = theApp.options.tau;
+	lattice.tau = theApp.GetOptions().tau;
 
 	lattice.simulate = true;
 	theThread = std::thread(&LatticeBoltzmann::Lattice::Simulate, &lattice);
@@ -196,7 +196,7 @@ CLatticeBoltzmannView* CLatticeBoltzmannDoc::GetMainView()
 			return dynamic_cast<CLatticeBoltzmannView*>(pView);
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 

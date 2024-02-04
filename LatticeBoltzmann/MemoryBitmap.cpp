@@ -92,18 +92,18 @@ void MemoryBitmap::SetMatrix(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::
 
 	if (1 == resultsType)
 	{
-		minVal = theApp.options.minSpeed;
-		maxVal = theApp.options.maxSpeed;
+		minVal = theApp.GetOptions().minSpeed;
+		maxVal = theApp.GetOptions().maxSpeed;
 	}
 	else if (2 == resultsType)
 	{
-		minVal = theApp.options.minVorticity;
-		maxVal = theApp.options.maxVorticity;
+		minVal = theApp.GetOptions().minVorticity;
+		maxVal = theApp.GetOptions().maxVorticity;
 	}
 	else
 	{
-		minVal = theApp.options.minDensity;
-		maxVal = theApp.options.maxDensity;
+		minVal = theApp.GetOptions().minDensity;
+		maxVal = theApp.GetOptions().maxDensity;
 	}
 
 	for (int j = 0; j < results.cols(); ++j)
@@ -112,7 +112,7 @@ void MemoryBitmap::SetMatrix(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::
 			const int line = (m_height - i - 1) * stride;
 			const int pos = line + 3 * j;
 
-			const COLORREF color = latticeObstacles(i, j) ? theApp.options.obstaclesColor : ConvertToColor(results(i, j), static_cast<int>(theApp.options.chartColors), minVal, maxVal);
+			const COLORREF color = latticeObstacles(i, j) ? theApp.GetOptions().obstaclesColor : ConvertToColor(results(i, j), static_cast<int>(theApp.GetOptions().chartColors), minVal, maxVal);
 
 			data[pos] = GetBValue(color);
 			data[pos + 1] = GetGValue(color);
@@ -121,7 +121,7 @@ void MemoryBitmap::SetMatrix(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::
 }
 
 
-void MemoryBitmap::Draw(CDC* pDC)
+void MemoryBitmap::Draw(CDC* pDC) const
 {
 	BITMAPINFO bmi;
 	ZeroMemory(&bmi, sizeof(BITMAPINFOHEADER));
@@ -144,7 +144,7 @@ void MemoryBitmap::Draw(CDC* pDC)
 	dcMemory.SelectObject(pOldBitmap);
 }
 
-void MemoryBitmap::Draw(CDC* pDC, CRect& rect, int origWidth, int origHeight)
+void MemoryBitmap::Draw(CDC* pDC, CRect& rect, int origWidth, int origHeight) const
 {
 	BITMAPINFO bmi;
 	ZeroMemory(&bmi, sizeof(BITMAPINFOHEADER));

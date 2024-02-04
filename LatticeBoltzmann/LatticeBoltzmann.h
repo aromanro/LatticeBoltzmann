@@ -20,10 +20,13 @@ class CLatticeBoltzmannApp : public CWinAppEx
 public:
 	CLatticeBoltzmannApp();
 
+	Options& GetOptions() { return options; }
+	UINT& GetAppLook() { return m_nAppLook; }
+	BOOL GetHiColorIcons() const { return m_bHiColorIcons; }
 
 // Overrides
-public:
-	virtual BOOL InitInstance();
+private:
+	BOOL InitInstance() override;
 
 // Implementation
 	UINT  m_nAppLook;
@@ -31,9 +34,9 @@ public:
 
 	Options options;
 
-	virtual void PreLoadState();
-	virtual void LoadCustomState();
-	virtual void SaveCustomState();
+	void PreLoadState() override;
+	void LoadCustomState() override;
+	void SaveCustomState() override;
 
 	afx_msg void OnAppAbout();
 	DECLARE_MESSAGE_MAP()

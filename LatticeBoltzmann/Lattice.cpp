@@ -3,32 +3,10 @@
 
 namespace LatticeBoltzmann {
 
-	Lattice::Lattice()
-		: resultsType(ResultsType::Density), boundaryConditions(BoundaryConditions::BounceBack), simulate(true), refreshSteps(10),
-		accelX(0.015), 
-//		accelY(0),
-		useAccelX(0),
-		inletOption(1), outletOption(1),
-		inletDensity(1.05), outletDensity(1.),
-		inletSpeed(0.5), outletSpeed(0.5),
-		tau(0.6), numThreads(8),
-		processed(0)
-	{
-	}
-
-
-	Lattice::~Lattice()
-	{
-	}
-
-
-
-
-
 	void Lattice::Init()
 	{
 		{
-			std::lock_guard<std::mutex> lock(resMutex);
+			std::lock_guard lock(resMutex);
 			results = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, DataOrder>::Zero(latticeObstacles.rows(), latticeObstacles.cols());
 		}
 
@@ -46,7 +24,7 @@ namespace LatticeBoltzmann {
 	{
 		// signal the worker thread to wake up if it's waiting
 		{
-			std::lock_guard<std::mutex> lk(mw);
+			std::lock_guard lk(mw);
 			for (unsigned int i = 0; i < wakeup.size(); ++i) wakeup[i] = true;
 		}
 		cvw.notify_all();
@@ -54,7 +32,7 @@ namespace LatticeBoltzmann {
 
 	void Lattice::SignalMoreData()
 	{
-		std::unique_lock<std::mutex> lk(mp);
+		std::unique_lock lk(mp);
 		++processed;
 		lk.unlock();
 		cvp.notify_one();
@@ -63,14 +41,14 @@ namespace LatticeBoltzmann {
 	void Lattice::WaitForData()
 	{
 		//wait for the worker threads to finish some work
-		std::unique_lock<std::mutex> lk(mp);
+		std::unique_lock lk(mp);
 		cvp.wait(lk, [this] { return processed == static_cast<int>(numThreads); });
 		processed = 0;
 	}
 
 	void Lattice::WaitForWork(int tid)
 	{
-		std::unique_lock<std::mutex> lk(mw);
+		std::unique_lock lk(mw);
 		cvw.wait(lk, [this, tid] { return wakeup[tid]; });
 		wakeup[tid] = false;
 	}
@@ -183,7 +161,7 @@ namespace LatticeBoltzmann {
 	{
 		Init();
 
-		CellLattice latticeWork = CellLattice(lattice.rows(), lattice.cols());
+		CellLattice latticeWork(lattice.rows(), lattice.cols());
 		std::vector<std::thread> theThreads(numThreads);
 
 		processed = 0;
@@ -222,7 +200,7 @@ namespace LatticeBoltzmann {
 
 	void Lattice::GetResults()
 	{
-		std::lock_guard<std::mutex> lock(resMutex);
+		std::lock_guard lock(resMutex);
 
 		switch (resultsType)
 		{
@@ -235,20 +213,20 @@ namespace LatticeBoltzmann {
 			for (int j = 0; j < lattice.cols(); ++j)
 				for (int i = 0; i < lattice.rows(); ++i)
 				{
-					auto res = lattice(i, j).Velocity();
-					results(i, j) = sqrt(res.first * res.first + res.second * res.second);
+					const auto [resf, ress] = lattice(i, j).Velocity();
+					results(i, j) = sqrt(resf * resf + ress * ress);
 				}
 			break;
 		case ResultsType::Vorticity:
 			for (int j = 0; j < lattice.cols(); ++j)
 				for (int i = 0; i < lattice.rows(); ++i)
 				{
-					auto v = lattice(i, j).Velocity();
+					const auto [vf, vs] = lattice(i, j).Velocity();
 
-					auto vx = i < lattice.rows() - 1LL ? lattice(i + 1LL, j).Velocity() : lattice(0, j).Velocity();
-					auto vy = j > 0 ? lattice(i, j - 1LL).Velocity() : (boundaryConditions == BoundaryConditions::Periodic ? lattice(i, lattice.cols() - 1LL).Velocity() : std::make_pair(0., 0.));
+					const auto [vxf, fxs] = i < lattice.rows() - 1LL ? lattice(i + 1LL, j).Velocity() : lattice(0, j).Velocity();
+					const auto [vyf,vys] = j > 0 ? lattice(i, j - 1LL).Velocity() : (boundaryConditions == BoundaryConditions::Periodic ? lattice(i, lattice.cols() - 1LL).Velocity() : std::make_pair(0., 0.));
 
-					results(i, j) = (vy.second - v.second) - (vx.first - v.first);
+					results(i, j) = (vys - vs) - (vxf - vf);
 				}
 			break;
 		}

@@ -15,12 +15,6 @@ namespace LatticeBoltzmann {
 															   // 0, N,  NE, E,  SE, S,  SW, W,  NW
 	std::array<double, NumDir> Cell::coeff = std::array<double, NumDir>{ { c0, c1, c2, c1, c2, c1, c2, c1, c2 } };
 
-	Cell::Cell()
-		: density{ {0, 0, 0, 0, 0, 0, 0, 0, 0} }
-	{
-	}
-
-
 	void Cell::Init()
 	{
 		density = coeff;

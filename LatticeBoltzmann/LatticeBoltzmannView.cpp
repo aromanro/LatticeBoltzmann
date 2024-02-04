@@ -34,16 +34,6 @@ END_MESSAGE_MAP()
 
 // CLatticeBoltzmannView construction/destruction
 
-CLatticeBoltzmannView::CLatticeBoltzmannView()
-	: timer(NULL)
-{
-	// TODO: add construction code here
-}
-
-CLatticeBoltzmannView::~CLatticeBoltzmannView()
-{
-}
-
 BOOL CLatticeBoltzmannView::PreCreateWindow(CREATESTRUCT& cs)
 {
 	// TODO: Modify the Window class or styles here by modifying
@@ -76,8 +66,8 @@ void CLatticeBoltzmannView::OnDraw(CDC* pDC)
 		height = static_cast<int>(pDoc->lattice.results.rows());
 	}
 
-	width *= theApp.options.zoom;
-	height *= theApp.options.zoom;
+	width *= theApp.GetOptions().zoom;
+	height *= theApp.GetOptions().zoom;
 
 	CRect rct;
 	rct.top = rect.top + rect.Height() / 2 - height / 2;
@@ -179,7 +169,7 @@ int CLatticeBoltzmannView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CView::OnCreate(lpCreateStruct) == -1)
 		return -1;
 	
-	timer = SetTimer(1, 66, NULL);
+	timer = SetTimer(1, 66, nullptr);
 
 	return 0;
 }

@@ -10,14 +10,13 @@ class CSimulationPropPage : public CMFCPropertyPage
 
 public:
 	CSimulationPropPage();
-	virtual ~CSimulationPropPage();
 
 // Dialog Data
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_PROPPAGE_SIMULATION };
 #endif
 
-protected:
+private:
 	int boundaryConditions; // 0 - periodic, 1 - bounce back, 2 - slippery
 	double tau;
 	double accelX; // push force on the left side
@@ -26,12 +25,12 @@ protected:
 	CNumberEdit tauEdit;
 	CNumberEdit accelXEdit;
 
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	void DoDataExchange(CDataExchange* pDX) override;    // DDX/DDV support
 
 	DECLARE_MESSAGE_MAP()
-public:
-	virtual BOOL OnApply();
-	virtual BOOL OnInitDialog();
+
+	BOOL OnApply() override;
+	BOOL OnInitDialog() override;
 	void ApplyValues();
 	afx_msg void OnBnClickedRadio();
 	afx_msg void OnEnChangeEdit();

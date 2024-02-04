@@ -17,14 +17,10 @@ IMPLEMENT_DYNAMIC(CSimulationPropPage, CMFCPropertyPage)
 CSimulationPropPage::CSimulationPropPage()
 	: CMFCPropertyPage(IDD_PROPPAGE_SIMULATION)
 {
-	boundaryConditions = theApp.options.boundaryConditions;
-	tau = theApp.options.tau;
-	accelX = theApp.options.accelX;
-	useAccelX = theApp.options.useAccelX;
-}
-
-CSimulationPropPage::~CSimulationPropPage()
-{
+	boundaryConditions = theApp.GetOptions().boundaryConditions;
+	tau = theApp.GetOptions().tau;
+	accelX = theApp.GetOptions().accelX;
+	useAccelX = theApp.GetOptions().useAccelX;
 }
 
 void CSimulationPropPage::DoDataExchange(CDataExchange* pDX)
@@ -80,12 +76,12 @@ BOOL CSimulationPropPage::OnInitDialog()
 
 void CSimulationPropPage::ApplyValues()
 {
-	theApp.options.boundaryConditions = boundaryConditions;
-	theApp.options.tau = tau;
-	theApp.options.accelX = accelX;
-	theApp.options.useAccelX = useAccelX;
+	theApp.GetOptions().boundaryConditions = boundaryConditions;
+	theApp.GetOptions().tau = tau;
+	theApp.GetOptions().accelX = accelX;
+	theApp.GetOptions().useAccelX = useAccelX;
 
-	theApp.options.Save();
+	theApp.GetOptions().Save();
 }
 
 

@@ -17,9 +17,6 @@ namespace LatticeBoltzmann {
 	class Lattice
 	{
 	public:
-		Lattice();
-		~Lattice();
-
 		enum class BoundaryConditions : unsigned char
 		{
 			Periodic = 0,
@@ -34,36 +31,36 @@ namespace LatticeBoltzmann {
 			Vorticity
 		};
 
-		ResultsType resultsType;
+		ResultsType resultsType = ResultsType::Density;
 
-		_declspec(align(16)) BoundaryConditions boundaryConditions;
+		_declspec(align(16)) BoundaryConditions boundaryConditions = BoundaryConditions::BounceBack;
 
-		std::atomic<bool> simulate;
+		std::atomic<bool> simulate{ true };
 
-		unsigned int refreshSteps;
-		unsigned int numThreads;
+		unsigned int refreshSteps = 10;
+		unsigned int numThreads = 8;
 
 		static const Eigen::StorageOptions DataOrder = Eigen::ColMajor;
 
-		typedef Eigen::Matrix<LatticeBoltzmann::Cell, Eigen::Dynamic, Eigen::Dynamic, DataOrder> CellLattice;
+		using CellLattice = Eigen::Matrix<LatticeBoltzmann::Cell, Eigen::Dynamic, Eigen::Dynamic, DataOrder>;
 
-		_declspec(align(16)) double tau;
-		_declspec(align(16)) double accelX; // only applied to the left side to 'push' the fluid through the 'pipe'
+		_declspec(align(16)) double tau = 0.6;
+		_declspec(align(16)) double accelX = 0.015; // only applied to the left side to 'push' the fluid through the 'pipe'
 		//double accelY; // can be used to add gravity, not actually used - set to zero
 
 
-		_declspec(align(16)) int useAccelX;
+		_declspec(align(16)) int useAccelX = 0;
 
 		// inlet/outlet
 
-		_declspec(align(16)) int inletOption; // 0 - use inlet density, 1 - use inlet speed
-		_declspec(align(16)) int outletOption;
+		_declspec(align(16)) int inletOption = 1; // 0 - use inlet density, 1 - use inlet speed
+		_declspec(align(16)) int outletOption = 1;
 
-		_declspec(align(16)) double inletDensity;
-		_declspec(align(16)) double inletSpeed;
+		_declspec(align(16)) double inletDensity = 1.05;
+		_declspec(align(16)) double inletSpeed = 0.5;
 
-		_declspec(align(16)) double outletDensity;
-		_declspec(align(16)) double outletSpeed;
+		_declspec(align(16)) double outletDensity = 1;
+		_declspec(align(16)) double outletSpeed = 0.5;
 
 
 		_declspec(align(16)) CellLattice lattice;
@@ -73,9 +70,9 @@ namespace LatticeBoltzmann {
 		_declspec(align(16)) Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, DataOrder> results;
 		std::mutex resMutex; // to protect the above and results type if changed during run
 
-
 		void Init();
 		void Simulate();
+
 	private:
 		std::mutex mw;
 		std::mutex mp;
@@ -83,7 +80,7 @@ namespace LatticeBoltzmann {
 		std::condition_variable cvp;
 		std::condition_variable cvw;
 
-		int processed;
+		int processed = 0;
 		std::vector<bool> wakeup;
 
 		void WakeUp();

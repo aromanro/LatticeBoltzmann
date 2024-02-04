@@ -23,48 +23,39 @@ protected:
 
 	unsigned char* data;
 
-	inline int GetStrideLength() {
+	inline int GetStrideLength() const {
 		return 4 * ((m_width * 3 + 3) / 4);
 	}
 
-	inline COLORREF ConvertToColor(double value, int colorType, double minVal, double maxVal)
+	inline COLORREF ConvertToColor(double value, int colorType, double minVal, double maxVal) const
 	{
-		COLORREF color = RGB(0, 0, 0);
+		COLORREF color = 0;
 
 		if (value < minVal) value = minVal;
 		else if (value > maxVal) value = maxVal;
 
-		const double interval = maxVal - minVal;
-		
-		if (0 == colorType) // two colors
+		if (const double interval = maxVal - minVal; 0 == colorType) // two colors
 		{
-			const double unit = interval / 255.;
-
-			int B = static_cast<int>((value - minVal) / unit);
-			int R = 255 - B;
+			const int B = static_cast<int>((value - minVal) / interval * 255.);
+			const int R = 255 - B;
 
 			color = RGB(R, 0, B);
 		}
 		else
 		{
-			const double unit = interval / (255. * 2.);
-
-			int v = static_cast<int>((value - minVal) / unit);
-
-			if (v > 0xff)
+			if (int v = static_cast<int>((value - minVal) / interval * 255. * 2.); v > 0xff)
 			{
 				v -= 0xff;
 
-
-				int B = v;
-				int G = 255 - v;
+				const int B = v;
+				const int G = 255 - v;
 
 				color = RGB(0, G, B);
 			}
 			else
 			{
-				int G = v;
-				int R = 255 - v;
+				const int G = v;
+				const int R = 255 - v;
 
 				color = RGB(R, G, 0);
 			}
@@ -77,7 +68,7 @@ public:
 
 	void SetMatrix(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, LatticeBoltzmann::Lattice::DataOrder>& results, int resultsType, const Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic, LatticeBoltzmann::Lattice::DataOrder>& latticeObstacles);
 
-	void Draw(CDC* pDC);
-	void Draw(CDC* pDC, CRect& rect, int origWidth = 0, int origHeight = 0);
+	void Draw(CDC* pDC) const;
+	void Draw(CDC* pDC, CRect& rect, int origWidth = 0, int origHeight = 0) const;
 };
 

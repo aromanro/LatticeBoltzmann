@@ -17,12 +17,8 @@ IMPLEMENT_DYNAMIC(CComputationPropPage, CMFCPropertyPage)
 CComputationPropPage::CComputationPropPage()
 	: CMFCPropertyPage(IDD_PROPPAGE_COMPUTATION)
 {
-	numThreads = theApp.options.numThreads;
-	numSteps = theApp.options.refreshSteps;
-}
-
-CComputationPropPage::~CComputationPropPage()
-{
+	numThreads = theApp.GetOptions().numThreads;
+	numSteps = theApp.GetOptions().refreshSteps;
 }
 
 void CComputationPropPage::DoDataExchange(CDataExchange* pDX)
@@ -54,12 +50,12 @@ BOOL CComputationPropPage::OnApply()
 
 
 
-void CComputationPropPage::ApplyValues()
+void CComputationPropPage::ApplyValues() const
 {
-	theApp.options.numThreads = numThreads;
-	theApp.options.refreshSteps = numSteps;
+	theApp.GetOptions().numThreads = numThreads;
+	theApp.GetOptions().refreshSteps = numSteps;
 
-	theApp.options.Save();
+	theApp.GetOptions().Save();
 }
 
 

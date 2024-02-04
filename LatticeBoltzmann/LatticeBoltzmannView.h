@@ -10,47 +10,41 @@
 class CLatticeBoltzmannView : public CView
 {
 protected: // create from serialization only
-	CLatticeBoltzmannView();
+	CLatticeBoltzmannView() = default;
 	DECLARE_DYNCREATE(CLatticeBoltzmannView)
 
-// Attributes
 public:
 	CLatticeBoltzmannDoc* GetDocument() const;
+	// Operations
 
-// Operations
-// Overrides
-	virtual void OnDraw(CDC* pDC);  // overridden to draw this view
-	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
-protected:
-	virtual BOOL OnPreparePrinting(CPrintInfo* pInfo);
-	virtual void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo);
-	virtual void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo);
+private:
+	// Attributes
+	// Overrides
+	void OnDraw(CDC* pDC) override;  // overridden to draw this view
+	BOOL PreCreateWindow(CREATESTRUCT& cs) override;
+	BOOL OnPreparePrinting(CPrintInfo* pInfo) override;
+	void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo) override;
+	void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo) override;
 
 // Implementation
-public:
-	virtual ~CLatticeBoltzmannView();
 #ifdef _DEBUG
-	virtual void AssertValid() const;
-	virtual void Dump(CDumpContext& dc) const;
+	void AssertValid() const override;
+	void Dump(CDumpContext& dc) const override;
 #endif
 
-protected:
-	UINT_PTR timer;
+	UINT_PTR timer = 0;
 
 	MemoryBitmap memoryBitmap;
 
 // Generated message map functions
-protected:
 	afx_msg void OnFilePrintPreview();
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
-	DECLARE_MESSAGE_MAP()
-public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnDestroy();
-
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+	DECLARE_MESSAGE_MAP()
 };
 
 #ifndef _DEBUG  // debug version in LatticeBoltzmannView.cpp
