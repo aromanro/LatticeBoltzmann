@@ -9,7 +9,7 @@
 class MemoryBitmap
 {
 public:
-	MemoryBitmap();
+	MemoryBitmap() = default;
 
 	MemoryBitmap(const MemoryBitmap& other); // copy constructor
 	MemoryBitmap(MemoryBitmap&& other) noexcept; // move constructor
@@ -17,11 +17,19 @@ public:
 	MemoryBitmap& operator=(MemoryBitmap&& other) noexcept; // move assignment operator
 
 	~MemoryBitmap() noexcept;
-protected:
-	_declspec(align(16)) int m_width;
-	_declspec(align(16)) int m_height;
 
-	unsigned char* data;
+	void SetSize(int width, int height);
+
+	void SetMatrix(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, LatticeBoltzmann::Lattice::DataOrder>& results, int resultsType, const Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic, LatticeBoltzmann::Lattice::DataOrder>& latticeObstacles);
+
+	void Draw(CDC* pDC) const;
+	void Draw(CDC* pDC, CRect& rect, int origWidth = 0, int origHeight = 0) const;
+
+private:
+	_declspec(align(16)) int m_width = 0;
+	_declspec(align(16)) int m_height = 0;
+
+	unsigned char* data = nullptr;
 
 	inline int GetStrideLength() const {
 		return 4 * ((m_width * 3 + 3) / 4);
@@ -63,12 +71,5 @@ protected:
 
 		return color;
 	}
-public:
-	void SetSize(int width, int height);
-
-	void SetMatrix(const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, LatticeBoltzmann::Lattice::DataOrder>& results, int resultsType, const Eigen::Matrix<bool, Eigen::Dynamic, Eigen::Dynamic, LatticeBoltzmann::Lattice::DataOrder>& latticeObstacles);
-
-	void Draw(CDC* pDC) const;
-	void Draw(CDC* pDC, CRect& rect, int origWidth = 0, int origHeight = 0) const;
 };
 

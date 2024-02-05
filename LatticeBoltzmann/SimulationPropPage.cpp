@@ -84,20 +84,15 @@ void CSimulationPropPage::ApplyValues()
 	theApp.GetOptions().Save();
 }
 
-
 void CSimulationPropPage::OnBnClickedRadio()
 {
 	SetModified();
 }
 
-
 void CSimulationPropPage::OnEnChangeEdit()
 {
 	SetModified();
 }
-
-
-
 
 void CSimulationPropPage::OnBnClickedCheck1()
 {

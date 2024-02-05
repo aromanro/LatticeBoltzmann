@@ -6,12 +6,6 @@
 #include <utility>
 #include <cassert>
 
-MemoryBitmap::MemoryBitmap()
-	: m_width(0), m_height(0), data(nullptr)
-{
-}
-
-
 MemoryBitmap::MemoryBitmap(const MemoryBitmap& other) // copy constructor
 {
 	if (other.data)
