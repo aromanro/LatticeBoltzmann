@@ -6,6 +6,14 @@ A 2D Lattice Boltzmann program
 
 Description on https://compphys.go.ro/lattice-boltzmann/
 
+### TOOLS
+
+The project compiles on Windows with Visual Studio 2026 (the code can be compiled with older versions starting with VS 2015, but it's currently maintained with VS 2026 and C++ 17 or higher).
+
+### LIBRARIES
+
+Just mfc and the other typical VC++ runtime libraries are needed.
+
 ### PROGRAM IN ACTION
 
 [![Program video](https://img.youtube.com/vi/CIVWTfbblvI/0.jpg)](https://youtu.be/CIVWTfbblvI)
